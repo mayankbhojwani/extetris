@@ -962,3 +962,52 @@ to the submission. The export covers the conversation up to this request.
 
 The assistant filled in the student's own time (about 4 hours) in section 2
 of `docs/ai_usage_report.md`, replacing the blank. Nothing else changed.
+
+---
+
+## Entry 26 (2026-11-22 17:27 IST, design question: variant, platform or system?)
+
+### Prompt (verbatim, pasted by the student)
+
+```text
+Do you envisage your planned design and implementation an ExTetris Game Variant, or an ExTetris Game Variant Development Platform, or an ExTetris Game Variant Programming System? A game variant is just that: a game-playing program. A platform is like an IDE (integrated design environment), e.g. VSCode, Mathematica. It comes with facilities for program design, development, documentation, compilation, testing, shippable packaging etc. A system is like the gcc compiler bundle, or an API-equipped library, like BLAS for linear algebra.
+
+It could be any of these, but rarely a combination. A game variant contains neither a platform nor a system; you end up making a variant if you do not plan and succeed in implementing a platform and/or a system. A platform can have a system within it that is also usable as an API. This is the only plausible "combination" but that is a misnomer; it is not a composition; rather, it is a subset-superset relationship. An example is coding platforms like VSCode and Exlipse.
+```
+
+### Response summary
+
+No files changed except this log. The assistant answered that the current
+work is a **Game Variant Programming System**: an API-equipped library
+(`extetris`) that game programmers write against, much as programmers use
+BLAS. `play.py` and `examples/` are variants built on that system, not
+part of it.
+
+Evidence for "system":
+
+- the importable package with a generated API reference;
+- `Game` runs without the window;
+- composable `PieceMix` functions and a parameterised generator;
+- the manual tells designers to write short Python files.
+
+It is **not a platform**. There is no environment in which a designer
+designs, previews, tests, documents and packages a variant. Designers edit
+Python in their own editor, and nothing builds a shippable variant. The
+existing tests and doc generator serve developers of the system, not variant
+designers.
+
+The assistant pointed out that the brief's headline requirement (a designer
+can "design and release a variant ... without requiring expertise in any
+programming language", likened to Jupyter on Colab) describes a platform. On
+that requirement the current work falls short. It outlined what a platform
+containing the system would need:
+
+1. describing a variant without code;
+2. live preview of pieces and chances;
+3. a command to create a new variant;
+4. validating and testing a variant;
+5. packaging a variant with its own documentation and launchers.
+
+A tkinter "Variant Designer" window would stay within the allowed tools.
+Jupyter would need the student's permission, as it is an extra dependency.
+It asked the student which direction to take.
