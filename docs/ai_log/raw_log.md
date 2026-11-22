@@ -553,3 +553,75 @@ The assistant:
   Entry 1 of this log before publishing;
 - made one commit with no Claude attribution lines;
 - created the public repository mayankbhojwani/extetris and pushed.
+
+---
+
+## Entry 16 (2026-11-22 16:07 IST, Phase 4: game engine and window)
+
+### Prompt (verbatim)
+
+```text
+let's wrap up the game engine and window first
+```
+
+(Earlier messages in this stretch were the student running the verification
+commands in their own terminal: the tests, the help text, the catalogue and
+board drawings. The assistant confirmed the outputs; no code changed.)
+
+### Response summary
+
+The assistant built Phase 4 as two separate layers.
+
+**`src/extetris/game.py`: `Game` (the rules, no tkinter)**
+
+- Configurable board size, piece source (a function rng -> piece; the default
+  `any_piece` makes all 34 pieces equally likely, and the piece-frequency
+  phase will plug in here), seeded rng, start delay, and speed-up settings
+  (default: every 100 lines x0.9, as in the starter).
+- Pieces spawn at the top centre; game over when the new piece can't fit.
+- Moves:
+  - left/right;
+  - turning clockwise and anticlockwise, kept centred, with wall kicks
+    (shifts of 0, ±1, ±2 columns, or 1 row up);
+  - soft drop;
+  - hard drop, which locks immediately;
+  - a gravity tick that locks the piece and clears rows.
+- Speed-ups count every multiple of 100 lines crossed.
+- Pause and new game; `render()` gives a text picture.
+- Fixes B5, B7, B8, L1 and L3.
+
+**`src/extetris/window.py`: `GameWindow` (tkinter Canvas)**
+
+- Draws coloured squares, with the piece colour showing its difficulty class.
+- Keys: arrows, Z for anticlockwise, Space, P.
+- Menus: New Game, Pause/Resume, Speed Up/Down, Save Board as Text, Quit,
+  Keys, About.
+- Exactly one gravity timer, always cancelled before rescheduling.
+- Dialogs restore the previous pause state.
+- The status line shows lines, pieces, fall delay, and the current and next
+  piece.
+- Fixes B6, B5, B10, D2, L2 and L5.
+
+**Entry points**
+
+- `python3 play.py` plays the game.
+- `python3 play.py --catalogue` lists the pieces (the old catalogue printer
+  moved to `catalogue.py`).
+- The starter's `engine.py` is still untouched.
+
+**Tests:** `tests/test_game.py`, 20 tests:
+
+- moves and walls (B4 at game level) and a right-wall kick;
+- hard drop locking (L3), line counting, and the 99 -> 101 speed-up (B8);
+- pause blocking every move, game over, and a new game after game over (B7);
+- 3000-step random-play fuzz checks (the piece is always on the board, no full
+  rows are left) and seeded replay;
+- hidden-window checks, including exactly one timer after keys pressed while
+  paused (B6).
+
+The first run had 1 failure: 2 timers instead of 1. The cause was that
+`_gravity` cleared its timer record before rescheduling, so calling it
+directly (as the test did) left the old timer running. The assistant fixed
+this in `window.py`. All 78 tests now pass. The assistant also opened the real
+window for 1.5 s and closed it automatically. The game has not been played by
+hand yet; that is for the student to check.
