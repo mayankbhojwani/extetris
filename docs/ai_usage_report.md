@@ -45,9 +45,11 @@ All on 22 November 2026 (IST), from the log timestamps:
 | 15:58 – 16:01 | Phase 3: board; GitHub set up | 14 – 15 |
 | 16:07 – 16:16 | Phase 4: engine and window; Phase 5: piece mixes | 16 – 20 |
 | 17:12 – 17:16 | Phase 6: documentation; Phase 7: run scripts | 21 – 22 |
-| afterwards | this report | 23 |
+| 17:20 – 17:25 | this report; transcript export | 23 – 25 |
+| 17:27 – 17:30 | the professor's variant / platform / system question | 26 – 28 |
+| 17:30 – 17:40 | Phase 8: the platform layer | 29 – 30 |
 
-The working session took about **2 hours** in total, in two blocks. On top of
+The working session took about **2½ hours** in total, in two blocks. On top of
 that came my own time reading the explanations, playing the game and reviewing
 documents: **about 4 hours**.
 
@@ -311,6 +313,65 @@ Full prompts are in the log; short ones are quoted here.
 8. **Strengths:** clear error messages instead of crashes. **Weakness:**
    Windows is untested.
 
+### Phase 8: The platform layer (Entries 26–30)
+
+1. **Prompts:**
+   - a pasted question from the course: is the design a game variant, a
+     variant development platform, or a variant programming system?
+   - *"give me a brief answer"*
+   - *"was I supposed to build a platform as per the pdf"*
+   - *"Yes, build it"*
+2. **Response:**
+   - It said what we had was a **programming system**: a library with an
+     API, with `play.py` and the examples as variants built on it.
+   - It said this was not a platform, because a designer still had to edit
+     Python and had no way to preview, test or package a variant.
+   - It pointed out that the PDF's "first and foremost requirement" (design
+     and release a variant without programming, like Jupyter on Colab)
+     amounts to a platform with the system inside it.
+   - It then built that platform:
+     - a variant file format with plain-language checks;
+     - the **Variant Designer** window: a form, a live preview, and Play,
+       Robot playtest, Release and Save buttons;
+     - a robot playtester;
+     - a release packager that makes a shippable zip with launchers and an
+       auto-written README;
+     - four sample variants, `design.*` launchers, and
+       `play.py --variant/--release`.
+3. **Interpreted:** the system part met section 1.2 of the brief, but section
+   3, the top requirement, needed a platform. Having a system was not enough
+   to claim the main requirement.
+4. **Planned:** build the platform with the system as its inside layer,
+   using only Python, numpy and tkinter. I didn't use Jupyter, because it
+   would be an extra dependency.
+5. **Implemented:**
+   - `src/extetris/variant.py`, `designer.py`, `playtest.py`, `release.py`;
+   - `Game.drop_at` (used by the robot);
+   - `design.py` and its launchers, `variants/*.json`;
+   - updates to the manual (the designer is now the main way), the design
+     document (product type and platform diagrams), the README and the API
+     reference;
+   - `tests/test_platform.py`.
+6. **Got:** all 127 tests passed.
+   - The tests unzip a release and run its `play.py` for real.
+   - The robot clearly separates the modes: about 73 lines cleared on
+     classic, 19 on normal and 2 on chaos.
+   - The designer window fits the screen in every mode.
+   - I haven't yet used the designer by hand, and the AI could not take a
+     screenshot of it, because macOS blocks screen capture.
+7. **How:**
+   - The AI's own review caught two designer problems before any test ran:
+     the slider value labels, and a "chances after N lines" slider that would
+     have crashed on fractional values. It fixed both.
+   - The new and changed diagrams were checked to render.
+   - No changes were made by me.
+8. **Strengths:** it now meets the main requirement directly. A designer can
+   design, check, test, play, document and ship a variant without code, and
+   the generated README always matches the variant. **Weaknesses:**
+   - the designer's look and feel is untested by a real user;
+   - the robot is a simple heuristic player, not a human;
+   - releases still need Python installed (they aren't standalone apps).
+
 ## 4. Where the AI's work had to be corrected
 
 All of these were caught by the AI's own tests or checks, or by me looking at
@@ -325,6 +386,8 @@ output. None needed me to change code.
 | 6 | 21 methods had no description | the API generator listed them | descriptions added |
 | 6 | Diagram syntax risked not rendering | checked in a browser | syntax simplified |
 | 7 | Launch test hung | test did not finish | test rewritten |
+| 8 | Designer slider labels and a fractional-value crash risk | AI's own code review | fixed before testing |
+| 8 | No screenshot of the designer possible | macOS blocked screen capture | checked window size instead; needs a look by me |
 
 ## 5. Effort with and without AI
 
@@ -332,13 +395,13 @@ output. None needed me to change code.
 
 | | size |
 |---|---|
-| engine (`src/extetris`) | about 1,240 lines of Python |
-| tests | about 720 lines, 103 tests |
-| tools (analysis and API generator) | about 470 lines |
-| documentation | about 1,280 lines, including UML diagrams |
+| system and platform (`src/extetris`) | about 2,220 lines of Python |
+| tests | about 940 lines, 127 tests |
+| tools (analysis and API generator) | about 480 lines |
+| documentation | about 1,930 lines, including UML diagrams |
 | for comparison: the starter code | about 500 lines |
 
-**With AI:** about 2 hours of session time, plus my own reading, testing and
+**With AI:** about 2½ hours of session time, plus my own reading, testing and
 playing (section 2).
 
 **Without AI (rough estimate):** I would have needed to:
@@ -346,10 +409,11 @@ playing (section 2).
 - learn shape enumeration and classification;
 - design and test an immutable class hierarchy;
 - learn tkinter's timer model;
+- build a designer GUI, a playtest robot and a release packager;
 - write the tests and documentation, and draw the diagrams.
 
 At a realistic student pace that is several weeks of part-time work: very
-roughly **60–120 hours**. The biggest savings were in tests and documentation,
+roughly **90–160 hours**. The biggest savings were in tests and documentation,
 which I would likely have cut short.
 
 **If AI were proscribed,** the result would probably be smaller:
@@ -359,8 +423,8 @@ which I would likely have cut short.
   to write by hand;
 - a few tests and shorter documentation.
 
-The generator approach and the 103 tests are the parts I would most likely
-not have attempted.
+The generator approach, the platform (designer, robot, release) and the 127
+tests are the parts I would most likely not have attempted.
 
 **What the speed cost me:** I wrote no code. My understanding of the code
 comes from the AI's explanations, the tests and the documentation, not from

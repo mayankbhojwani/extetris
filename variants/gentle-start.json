@@ -1,0 +1,28 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Gentle Start",
+  "author": "",
+  "description": "Classic pieces for 5 lines, then easy, then normal. Speeds up every 10 lines.",
+  "board": {
+    "width": 10,
+    "height": 20
+  },
+  "speed": {
+    "start_delay_ms": 1000,
+    "speedup_every": 10,
+    "speedup_factor": 0.85,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "progressive",
+    "every_lines": 5,
+    "stages": [
+      "classic",
+      "easy",
+      "normal"
+    ]
+  },
+  "window": {
+    "cell_size": 28
+  }
+}

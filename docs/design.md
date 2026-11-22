@@ -1,7 +1,7 @@
 # ExTetris design document
 
-This document explains how the new engine in `src/extetris/` is put together
-and why. The diagrams are written in [Mermaid](https://mermaid.js.org/), which
+This document explains how ExTetris in `src/extetris/` is put together and
+why. The diagrams are written in [Mermaid](https://mermaid.js.org/), which
 GitHub draws as pictures when you open this file there.
 
 Related documents:
@@ -21,17 +21,63 @@ Related documents:
    classified by shape, bounding box and the holes they leave when landing.
 2. **A better way to set how often each piece appears.** This replaces
    "repeat an index in a list", in a functional-OO style.
-3. **A non-programmer can make a game variant.** Few concepts, readable names,
-   clear error messages.
+3. **A non-programmer can design and release a variant** (the brief's "first
+   and foremost requirement", compared there to Jupyter on Colab): no
+   programming expertise needed, from design to a shippable game.
+
+## 1a. What kind of product is this?
+
+ExTetris is an **ExTetris Game Variant Development Platform that contains an
+ExTetris Game Variant Programming System**. This is a subset–superset
+relationship, like an IDE and the compiler inside it.
+
+| part | what it is | where |
+|---|---|---|
+| **Programming system** | an API-equipped library: pieces, board, game rules, piece mixes. Programmers build variants by calling it, the way programs use BLAS. | `shape`, `pieces`, `generator`, `board`, `game`, `mixes`, `window` |
+| **Development platform** | an environment for game designers, built on the system: **design** a variant in a form without code, **preview** it live, **check** it (plain-language problems), **test** it (robot playtester), **play** it, **document** it (generated README) and **package** it as a shippable zip | `variant`, `designer`, `playtest`, `release`, and the `design.*` launchers |
+| **Game variants** | game-playing programs made *with* the platform or the system; they contain neither | `variants/*.json`, `examples/*.py`, every release zip |
+
+```mermaid
+flowchart LR
+    subgraph PLATFORM["Development platform (for game designers)"]
+        D["Variant Designer<br/>form + live preview"]
+        V["Variant<br/>data file + checks"]
+        R["Robot playtest"]
+        Z["Release<br/>zip + README + launchers"]
+        subgraph SYSTEM["Programming system (API library)"]
+            API["Shape · ExTetromino classes · PieceGenerator<br/>Board · Game · PieceMix · GameWindow"]
+        end
+    end
+    D --> V
+    D --> R
+    D --> Z
+    V --> API
+    R --> API
+    Z --> API
+    Z -.produces.-> OUT["Game variant<br/>(shippable zip)"]
+    PROG["Programmer's script<br/>(examples/*.py)"] --> API
+    PROG -.is a.-> OUT2["Game variant"]
+```
 
 ## 2. The layers
 
 The starter put everything (window, timers, rules, scoring, piece choice) into
-one `TetrisEngine` class. The new engine splits it into layers. Each layer
-only uses the ones below it.
+one `TetrisEngine` class. ExTetris splits it into layers. Each layer only
+uses the ones below it. The top row is the platform; the rest is the system.
 
 ```mermaid
 flowchart TB
+    DS["<b>designer.py</b><br/>VariantDesigner<br/><i>form, live preview, buttons</i>"]
+    VA["<b>variant.py</b><br/>Variant<br/><i>a variant as data: load, check, save, describe</i>"]
+    PT["<b>playtest.py</b><br/>playtest, autoplay<br/><i>robot player</i>"]
+    RL["<b>release.py</b><br/>build_release<br/><i>shippable zip</i>"]
+    DS --> VA
+    DS --> PT
+    DS --> RL
+    DS --> W
+    PT --> VA
+    RL --> VA
+    VA --> G
     W["<b>window.py</b><br/>GameWindow<br/><i>draws, listens to keys, one timer</i>"]
     G["<b>game.py</b><br/>Game<br/><i>the rules: moves, gravity, locking, score, speed</i>"]
     M["<b>mixes.py</b><br/>PieceMix, mix, MODES, progressive<br/><i>which pieces appear, how often</i>"]
@@ -51,8 +97,9 @@ flowchart TB
     GEN --> GEO
 ```
 
-Everything except `window.py` works without tkinter. That's why the rules can
-be checked by 99 automatic tests and replayed exactly from a random seed.
+Everything except `window.py` and `designer.py` works without tkinter. That's
+why the rules can be checked by automatic tests (127 in total) and replayed
+exactly from a random seed.
 
 ## 3. Class diagram
 
@@ -294,7 +341,27 @@ Compared with the starter's repeated index list:
   times, so its "uniform" mix wasn't uniform;
 - they can depend on how far the game has got.
 
-### 5.4 Rules separate from the window
+### 5.4 Variants are data, not code (platform)
+
+A variant is a small JSON file: name, board, speed, pieces (a mode, a mix of
+shares, or progressive stages). `Variant` turns it into a `Game`, and its
+`problems()` method lists everything wrong in plain words. The designer shows
+those problems live and blocks Play, Robot playtest and Release until there
+are none.
+
+Because a variant is data:
+
+- the designer can read and write it;
+- a release zip carries it next to a copy of the engine;
+- the README inside the release is generated from it, so the documentation
+  always matches the game.
+
+The robot playtester uses the system API (`Game.drop_at`) and a simple
+well-known scoring rule (aggregate height, cleared lines, holes, bumpiness).
+It gives designers a number to compare variants by. With 3 games of up to 200
+pieces it cleared about 73 lines on classic, 19 on normal and 2 on chaos.
+
+### 5.5 Rules separate from the window
 
 `Game` has no tkinter in it. `GameWindow` only draws and forwards keys. Results:
 
@@ -326,7 +393,7 @@ Compared with the starter's repeated index list:
 
 ## 7. Testing
 
-`python3 -B -m unittest discover -s tests -v` runs 99 tests in about 1 second.
+`python3 -B -m unittest discover -s tests -v` runs 127 tests in about 3 seconds.
 They check:
 
 | test file | what it checks |
@@ -335,6 +402,8 @@ They check:
 | `test_board.py` | edges (B4), placing, dropping, clearing rows, holes (cross-checked against every piece), drawing (B10) |
 | `test_game.py` | moves, wall kicks, locking, speed-ups (B8), pause, game over (B7), 3000-move random play, seeded replay, one window timer (B6) |
 | `test_mixes.py` | weights, names, groups, modes ordered by difficulty, progressive stages, 5000-draw frequency check, Game integration |
+| `test_examples.py` | every example variant and every code snippet in the manual still works |
+| `test_platform.py` | variant files (round trip, defaults, 12 kinds of problem), robot player (rules, ranks classic above chaos, repeatable), release zip (contents, permissions, line endings, unzipped `play.py --check` / `--info` actually run), designer window (form → variant, sliders, stages, open/save/release, Play) |
 
 ## 8. Known limitations and possible extensions
 

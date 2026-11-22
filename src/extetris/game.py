@@ -158,6 +158,18 @@ class Game:
         self._lock()
         return True
 
+    def drop_at(self, turn, col):
+        """Put the falling piece, turned as `turn`, at column `col` at the top
+        and hard-drop it. For robots and tests: it skips the moves a player
+        would need, but follows every other rule. Returns False (and changes
+        nothing) if `turn` isn't the falling piece or doesn't fit there."""
+        if not self.active or not self.piece.same_piece_as(turn):
+            return False
+        if not self.board.fits(turn, 0, col):
+            return False
+        self.piece, self.row, self.col = turn, 0, col
+        return self.hard_drop()
+
     def tick(self):
         """One step of gravity: fall one row, or lock if resting on something."""
         if not self.active:

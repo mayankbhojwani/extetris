@@ -2,10 +2,12 @@
 # play.command, play.bat or ./play.sh instead.
 PYTHON ?= python3
 
-.PHONY: play check catalogue test docs census clean help
+.PHONY: play design release check catalogue test docs census clean help
 
 help:
 	@echo "make play       start the game (MODE=easy to choose a mode)"
+	@echo "make design     open the Variant Designer (no code needed)"
+	@echo "make release VARIANT=variants/x.json   package a variant as a zip"
 	@echo "make check      check that Python, numpy and tkinter are ready"
 	@echo "make catalogue  list every piece by difficulty class"
 	@echo "make test       run all automatic tests"
@@ -14,6 +16,13 @@ help:
 
 play:
 	$(PYTHON) play.py $(if $(MODE),--mode $(MODE))
+
+design:
+	$(PYTHON) design.py $(VARIANT)
+
+release:
+	@test -n "$(VARIANT)" || (echo "usage: make release VARIANT=variants/x.json" && exit 1)
+	$(PYTHON) play.py --release $(VARIANT)
 
 check:
 	$(PYTHON) play.py --check

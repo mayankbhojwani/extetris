@@ -1,0 +1,27 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Wide Board",
+  "author": "",
+  "description": "A 14 x 22 board with extra long bars and some two-hole pieces.",
+  "board": {
+    "width": 14,
+    "height": 22
+  },
+  "speed": {
+    "start_delay_ms": 800,
+    "speedup_every": 100,
+    "speedup_factor": 0.9,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "mix",
+    "weights": {
+      "classic": 70,
+      "TwoHole": 20,
+      "I": 10
+    }
+  },
+  "window": {
+    "cell_size": 24
+  }
+}

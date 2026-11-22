@@ -7,3 +7,6 @@ __pycache__/
 
 # The professor's assignment document is not redistributed here
 PoPL2026AssignmentExTetris.pdf
+
+# Variant releases built by the designer / make release
+releases/

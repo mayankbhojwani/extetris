@@ -1,0 +1,33 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Corner Climb",
+  "author": "",
+  "description": "Starts classic, adds a home-made mix of corner pieces, ends in chaos.",
+  "board": {
+    "width": 10,
+    "height": 20
+  },
+  "speed": {
+    "start_delay_ms": 1000,
+    "speedup_every": 100,
+    "speedup_factor": 0.9,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "progressive",
+    "every_lines": 8,
+    "stages": [
+      "classic",
+      {
+        "classic": 60,
+        "OneHole": 25,
+        "TwoHole": 15
+      },
+      "hard",
+      "chaos"
+    ]
+  },
+  "window": {
+    "cell_size": 28
+  }
+}

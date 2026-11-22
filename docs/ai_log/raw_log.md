@@ -1062,3 +1062,83 @@ Current status:
   variant.
 
 The assistant offered to build that platform layer next.
+
+---
+
+## Entry 29 (2026-11-22 17:30 IST, Phase 8: platform layer)
+
+### Prompt (verbatim)
+
+```text
+Yes, build it
+```
+
+### Response summary
+
+The summary of this phase is in Entry 30.
+
+---
+
+## Entry 30 (2026-11-22 17:41 IST, Phase 8 summary: platform layer)
+
+### Response summary (for the prompt in Entry 29)
+
+The assistant built a development platform around the existing programming
+system, using only Python, numpy and tkinter.
+
+**New modules in `src/extetris/`**
+
+| module | what it does |
+|---|---|
+| `variant.py` | `Variant`: a whole variant as a JSON file (name, author, description, board, speed, pieces as a mode, a mix of shares, or progressive stages, square size); `problems()` lists everything wrong in plain words; `make_game()`, `piece_mix()`, `stage_starts()`, `describe_markdown()` (a README for the variant), `load`/`save` |
+| `designer.py` | `VariantDesigner`, a tkinter window: a form on the left (About; Board and speed; Pieces as ready-made mode, sliders for "my own mix", or up to 4 "gets harder" stages); a live preview on the right (class-chance bar chart, average holes with a difficulty word, a gallery of every possible piece with its chance, a lines slider for progressive variants, problems in red or a green "Ready"); buttons for Play, Robot playtest, Release… and Save; a File menu with New, Open, Save, Save As, Release, Quit; Help; an unsaved-changes prompt |
+| `playtest.py` | a robot player that scores every turn and column with a standard heuristic (height, lines, holes, bumpiness); `autoplay`, `playtest`, `summary` |
+| `release.py` | `build_release()`: a folder plus zip containing a copy of the engine, `variant.json`, a generated README, `play.py` (with `--check` and `--info`), `play.sh`, `play.command`, `play.bat` (CRLF), with executable permissions kept inside the zip |
+
+The assistant also added `Game.drop_at(turn, col)`, used by the robot.
+
+**Other files**
+
+- `design.py` with `design.sh`, `design.command` and `design.bat`.
+  `--help` prints usage; this was added after the assistant's own launch
+  check revealed a gap.
+- `play.py --variant FILE` and `play.py --release FILE`.
+- New Makefile targets: `design` and `release VARIANT=...`.
+- `variants/`: classic, gentle-start, wide-board, corner-climb.
+- `releases/` is git-ignored.
+
+**Documentation**
+
+- The manual has a new section 4, the Variant Designer, which is now the main
+  way to make a variant. Python became optional (sections 5–7).
+- The design document gained "1a. What kind of product is this?" with a
+  platform/system diagram, and the platform modules were added to the layers
+  diagram. All 4 diagrams were checked to render.
+- The README was updated.
+- The API reference was regenerated; 10 missing docstrings were added.
+- The AI usage report gained a Phase 8 section, with the corrections table and
+  effort figures updated.
+
+**Tests:** `tests/test_platform.py`, 24 tests. All 127 tests pass (about
+3 s). They cover:
+
+- variant round trip, defaults, and 12 kinds of problem;
+- the robot (rules, it ranks classic above chaos, repeatability);
+- the release zip (contents, no caches, CRLF, executable bit) and running the
+  unzipped `play.py --check` / `--info`;
+- the hidden designer window (form to variant, sliders, stages, percent to
+  factor, open/save/release, Play).
+
+Running `./design.command` and `play.py --variant` for real both opened
+windows.
+
+**Problems along the way**
+
+- Before testing, the assistant's own review fixed the slider-label tracking
+  and an IntVar-with-fractions crash risk.
+- A screenshot of the designer was not possible (macOS blocked screen
+  capture), so the window size was measured instead. The largest mode is
+  780×786 on a 1470×956 screen.
+- The assistant mistakenly launched the designer with `--help` in a
+  foreground command, which opened a window and hung. It stopped it, left no
+  stray processes, and added proper `--help` handling.

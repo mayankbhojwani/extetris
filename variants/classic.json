@@ -1,0 +1,23 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Classic",
+  "author": "",
+  "description": "Plain Tetris: only the 7 normal pieces.",
+  "board": {
+    "width": 10,
+    "height": 20
+  },
+  "speed": {
+    "start_delay_ms": 1000,
+    "speedup_every": 100,
+    "speedup_factor": 0.9,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "mode",
+    "mode": "classic"
+  },
+  "window": {
+    "cell_size": 28
+  }
+}

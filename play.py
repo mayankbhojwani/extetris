@@ -4,6 +4,9 @@ Choose the piece mode:      python3 play.py --mode easy
                             (classic, easy, normal, hard, chaos, progressive)
 List all the pieces:        python3 play.py --catalogue
 Check your setup:           python3 play.py --check
+Play a saved variant:       python3 play.py --variant variants/gentle-start.json
+Release a variant as a zip: python3 play.py --release variants/gentle-start.json
+(To design a variant without code, use design.py / design.command / design.bat.)
 
 Needs Python 3.9+ with numpy and tkinter. (The original starter game is still
 available as `python3 engine.py`.)
@@ -50,7 +53,27 @@ def main():
         return
     if problems:
         sys.exit("Can't start ExTetris:\n\n" + "\n\n".join(problems))
-    sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+    root = Path(__file__).resolve().parent
+    sys.path.insert(0, str(root / "src"))
+    for flag in ("--variant", "--release"):
+        if flag in args:
+            i = args.index(flag)
+            if i + 1 >= len(args):
+                sys.exit(f"{flag} needs a variant file, e.g. {flag} variants/classic.json")
+            from extetris.variant import Variant
+            try:
+                variant = Variant.load(args[i + 1])
+                if flag == "--release":
+                    from extetris.release import build_release
+                    print(f"Released: {build_release(variant, root / 'releases')}")
+                    return
+                game = variant.make_game()
+            except (OSError, ValueError) as e:
+                sys.exit(str(e))
+            from extetris.window import GameWindow
+            GameWindow(game, title=variant.name,
+                       cell_size=variant.data["window"]["cell_size"]).run()
+            return
     from extetris.__main__ import main as run
     run(args)
 

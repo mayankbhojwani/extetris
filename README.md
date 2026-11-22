@@ -1,13 +1,31 @@
 # ExTetris
 
 Extended Tetris: pieces of 4 squares that may touch **at their corners**, not
-only along their sides. That gives 34 pieces instead of the classic 7. The
-engine lets a game designer choose which pieces appear and how often, without
-being a programmer.
+only along their sides. That gives 34 pieces instead of the classic 7.
+
+ExTetris is a **game variant development platform** with a **programming
+system** inside it:
+
+- **For game designers (no code):** the Variant Designer lets you design a
+  variant, preview it live, let a robot playtest it, play it, and release it
+  as a zip anyone can double-click.
+- **For programmers:** `extetris` is a Python library (an API) for building
+  variants in code.
 
 Assignment for CS F301 Principles of Programming Languages, Sem-I 2026-27.
 It is built on, and replaces, the starter code by Ramprasad S. Joshi, which is
 kept unchanged in this folder as the reference.
+
+## Design your own variant (no code)
+
+| system | how |
+|---|---|
+| macOS | double-click `design.command` |
+| Windows | double-click `design.bat` |
+| Linux | `./design.sh` |
+| any | `python3 design.py` |
+
+Sample variants to open are in `variants/`. Releases go to `releases/`.
 
 ## Play
 
@@ -38,10 +56,13 @@ Keys: ← → move, ↑ turn, Z turn back, ↓ down, Space drop, P pause.
 ## Folder layout
 
 ```text
-play.py, play.sh, play.command, play.bat   start the game
-Makefile                                    shortcuts: make play / test / docs
-src/extetris/      the new engine
-examples/          three small game variants to copy
+play.py, play.sh, play.command, play.bat       start the game
+design.py, design.sh, design.command, design.bat   open the Variant Designer
+Makefile             shortcuts: make play / design / release / test / docs
+src/extetris/        the system (pieces, board, game, mixes, window) and the
+                     platform (variant, designer, playtest, release)
+variants/            sample variant files for the designer (.json)
+examples/            three variants written in Python, for programmers
 tests/             automatic tests (python3 -B -m unittest discover -s tests)
 tools/             shape_census.py (Phase 1), make_api_docs.py (API reference)
 docs/              the documents above
@@ -52,7 +73,7 @@ engine.py, board.py, shape.py, allextetrominoes.py
 ## For developers
 
 ```bash
-make test        # run the 99+ automatic tests
+make test        # run the automatic tests (127)
 make docs        # regenerate docs/api.md and the Phase 1 census
 make catalogue   # list every piece by class
 ```

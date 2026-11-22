@@ -17,9 +17,13 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import extetris  # noqa: E402
 from extetris import board, game, generator, mixes, pieces, shape  # noqa: E402
-from extetris import window  # noqa: E402
+from extetris import designer, playtest, release, variant, window  # noqa: E402
 
 SECTIONS = [
+    ("Platform: variants without code", [
+        (variant, "Variant"), (designer, "VariantDesigner"),
+        (playtest, "playtest"), (playtest, "autoplay"), (playtest, "summary"),
+        (release, "build_release")]),
     ("Playing a game", [
         (game, "Game"), (game, "any_piece"), (window, "GameWindow")]),
     ("Choosing pieces (mixes)", [
@@ -100,9 +104,10 @@ def main():
            "[Game Programmer's Manual](manual.md). For how the parts fit "
            "together see the [design document](design.md).",
            "",
-           "Everything below can be imported with `from extetris import ...`, "
-           "except `GameWindow` (`from extetris.window import GameWindow`), "
-           "which is kept separate so the rest works without tkinter.",
+           "The system API (pieces, board, game, mixes) is imported with "
+           "`from extetris import ...`. The window and platform parts have their "
+           "own modules: `extetris.window`, `extetris.variant`, "
+           "`extetris.designer`, `extetris.playtest`, `extetris.release`.",
            ""]
     out.append("## Contents\n")
     for title, items in SECTIONS:

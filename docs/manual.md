@@ -1,8 +1,11 @@
 # Game Programmer's Manual
 
 This manual is for **game designers**: people who want to make their own
-version of ExTetris without being programmers. You'll copy a short file,
-change a few numbers and names, and run it.
+version of ExTetris without being programmers. You design a variant in the
+**Variant Designer** window (section 4): pick settings, watch a live
+preview, play it, let a robot playtest it, and release it as a zip anyone
+can double-click. No code is needed. Programmers can also use ExTetris as a
+Python library (sections 5–7).
 
 If you want every detail of every class, see the [API reference](api.md).
 For how the engine is built, see the [design document](design.md).
@@ -99,9 +102,92 @@ floor (a hole is an empty square trapped under the piece):
 | `chaos` | all 34 pieces equally likely |
 | `progressive` **(default)** | classic at first, then easy at 10 lines, normal at 20, hard from 30 |
 
-## 4. Making your own variant
+## 4. Designing a variant without code: the Variant Designer
 
-The easiest way is to **copy an example and change it**. The `examples`
+This is the main way to make your own variant. **No programming is needed.**
+
+### Open it
+
+| system | how |
+|---|---|
+| macOS | double-click `design.command` |
+| Windows | double-click `design.bat` |
+| Linux | `./design.sh` |
+| any | `python3 design.py` (or `python3 design.py variants/classic.json` to open one) |
+
+### The window
+
+- **Left: the form.**
+  - **About:** name, author, a short description.
+  - **Board and speed:** width, height, starting fall delay, how often the
+    game speeds up and by how much, the fastest it may get, and the size of
+    one square on screen.
+  - **Pieces:** choose one of three ways:
+    - **Ready-made mode:** pick classic, easy, normal, hard, chaos or
+      progressive from a list.
+    - **My own mix:** one slider per group (the 7 classic pieces, and each
+      difficulty class). A slider is a *share*; the sliders don't need to add
+      up to 100.
+    - **Gets harder as lines are cleared:** up to 4 stages, each a mode or
+      "my mix" (the sliders), and how many lines each stage lasts.
+- **Right: the live preview.** It changes as you edit:
+  - a bar chart of the chance of each difficulty class;
+  - the average holes per piece, with a word for it ("like classic
+    Tetris", "easy", "medium", "hard", "very hard");
+  - every piece that can appear, drawn in its class colour with its own
+    chance;
+  - for a "gets harder" variant, a slider to see the chances after any
+    number of lines;
+  - at the bottom, **problems to fix** in red, or a green "Ready" when the
+    variant is complete.
+- **Top: the buttons.**
+  - **Play:** opens a game of your variant straight away.
+  - **Robot playtest:** a robot plays 5 quick games and reports how many
+    lines it cleared, how often it reached the top, and which pieces it got.
+    For comparison, the same robot clears about 73 lines on classic Tetris
+    and about 2 with all 34 pieces.
+  - **Release…:** packages your variant as a **zip file to share** (see
+    below).
+  - **Save:** saves your variant as a `.json` file you can open again later
+    (File ▸ Open…).
+
+### Releasing your variant
+
+**Release…** asks for a folder (normally `releases/`) and creates
+`<your-variant-name>.zip`. Whoever receives it:
+
+1. unzips it;
+2. double-clicks `play.command` (macOS) or `play.bat` (Windows), or runs
+   `./play.sh` (Linux).
+
+The zip includes the game engine, your variant, the launchers, and a
+`README.md` that describes your variant automatically: its settings, the
+chance of each class, and how to play. The receiver only needs Python with
+numpy and tkinter (`python3 play.py --check` tells them what's missing).
+
+### Sample variants
+
+The `variants` folder has four to open and change:
+
+| file | what it is |
+|---|---|
+| `classic.json` | plain Tetris |
+| `gentle-start.json` | classic, then easy, then normal; speeds up every 10 lines |
+| `wide-board.json` | a 14 × 22 board with extra long bars |
+| `corner-climb.json` | classic, then a home-made mix, then hard, then chaos |
+
+Also available from a terminal:
+
+```bash
+python3 play.py --variant variants/gentle-start.json    # play a saved variant
+python3 play.py --release variants/gentle-start.json    # make its zip in releases/
+```
+
+## 5. Making a variant in Python (optional)
+
+If you're comfortable editing a short text file, you can also write a variant
+in Python. This is how programmers use ExTetris as a library. The easiest way
+is to **copy an example and change it**. The `examples`
 folder has three:
 
 | file | what it shows |
@@ -121,7 +207,7 @@ The only part you need to change looks like this:
 ```python
 def make_game():
     return Game(
-        pieces="easy",          # which pieces appear (see section 5)
+        pieces="easy",          # which pieces appear (see section 6)
         width=10, height=20,    # board size
     )
 ```
@@ -139,7 +225,7 @@ Rules for editing:
 |---|---|---|
 | `width` | board width in squares (at least 4) | `10` |
 | `height` | board height in squares (at least 4) | `20` |
-| `pieces` | which pieces appear and how often (section 5) | `"progressive"` |
+| `pieces` | which pieces appear and how often (section 6) | `"progressive"` |
 | `start_delay_ms` | milliseconds between automatic one-row falls at the start; smaller = faster | `1000` |
 | `speedup_every` | lines to clear before pieces fall faster | `100` |
 | `speedup_factor` | how much faster each time: `0.9` means 10 % less waiting | `0.9` |
@@ -150,7 +236,7 @@ Window settings go in the `GameWindow(...)` line at the bottom of the
 example files: `title="My Game"` and `cell_size=24` (the size of one square in
 pixels).
 
-## 5. Choosing the pieces
+## 6. Choosing the pieces in Python
 
 `pieces=` accepts three kinds of value.
 
@@ -215,7 +301,7 @@ This prints what share each class gets:
 PYTHONPATH=src python3 -c "from extetris import mix; print(mix(classic=70, TwoHole=30).probabilities_by_class())"
 ```
 
-## 6. For programmers: going further
+## 7. For programmers: going further
 
 These need a little Python, but each is only a line or two.
 
@@ -238,10 +324,12 @@ These need a little Python, but each is only a line or two.
   `g = Game(); g.move_left(); g.hard_drop(); print(g.render())`.
 - **Everything else** is in the [API reference](api.md).
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 | problem | what to do |
 |---|---|
+| The designer shows problems in red | each line says what to change; Play, Robot playtest and Release work once it shows the green "Ready" |
+| macOS says `design.command` can't be opened | right-click it → Open → Open (only needed the first time) |
 | "numpy is missing" | `python3 -m pip install numpy` (Windows: `py -m pip install numpy`) |
 | "tkinter is missing" | macOS / Windows: install Python from python.org. Linux: `sudo apt install python3-tk` |
 | macOS says `play.command` can't be opened | right-click it → Open → Open (only needed the first time) |
