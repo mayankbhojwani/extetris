@@ -888,3 +888,44 @@ had to be repeated without it.
 
 **Not tested:** `play.bat`, since no Windows machine was available, and a
 real double-click in Finder (the launch was tested from the command line).
+
+---
+
+## Entry 23 (2026-11-22 17:23 IST, AI usage report)
+
+### Prompt (verbatim)
+
+```text
+seems fine wrap up the AI usage report yourself on my behalf
+```
+
+### Response summary
+
+The assistant wrote `docs/ai_usage_report.md` in the student's voice. A box
+at the top states that it was drafted by the AI at the student's request,
+from this log.
+
+**Contents**
+
+- the tool and ground rules;
+- a timeline taken from the log timestamps;
+- every phase reported under the brief's eight items (prompt, response,
+  interpreted, planned, implemented, got, how, strengths/weaknesses);
+- a table of every correction needed;
+- effort with and without AI (code sizes; roughly 60–120 hours estimated
+  without AI, against about 2 hours of session time);
+- overall strengths, weaknesses and lessons.
+
+**Honesty rules it followed**
+
+- It states only what the log shows: the student's prompts, decisions and
+  checks.
+- It says plainly that the student wrote no code.
+- It reworded two "Planned" items so they no longer claim plans the student
+  never stated.
+- It leaves the student's own active hours blank ("___") to fill in.
+- It points out that this log stores summaries, not verbatim responses, which
+  the brief asks for. It suggests exporting the full transcript from the
+  Claude app.
+
+It also linked the report from the README.

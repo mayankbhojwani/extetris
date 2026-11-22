@@ -32,6 +32,7 @@ Keys: ← → move, ↑ turn, Z turn back, ↓ down, Space drop, P pause.
 | [Design document](docs/design.md) | how the engine is built, with UML diagrams |
 | [API reference](docs/api.md) | every class and function (generated from the code) |
 | [Phase 1 analysis](docs/analysis.md) | the starter's 73 shapes and its bugs |
+| [AI usage report](docs/ai_usage_report.md) | how AI was used, phase by phase, and effort compared with no AI |
 | [AI interaction log](docs/ai_log/raw_log.md) | every AI prompt and response, as the assignment requires |
 
 ## Folder layout
