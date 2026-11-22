@@ -1030,3 +1030,35 @@ The assistant gave a short answer to the variant/platform/system question:
   as `play.py` and `examples/` are built on.
 - It is not a platform, because there is no environment for designing,
   previewing, testing and packaging variants without code.
+
+---
+
+## Entry 28 (2026-11-22 17:29 IST, clarification)
+
+### Prompt (verbatim)
+
+```text
+was I supposed to build a platform as per the pdf
+```
+
+### Response summary
+
+No files changed except this log. The assistant answered: not by name, since
+the PDF never uses the word "platform", but in effect, largely yes.
+
+- Section 1.2 of the brief asks for a class hierarchy plus an API, which is
+  a system. That part is done.
+- Section 3, "the first and foremost requirement", asks for a bundle with
+  build/run scripts and documentation, so that a game programmer can design
+  and release a variant "without requiring expertise in any programming
+  language", compared to Jupyter on Colab. Section 2.1 also says it should
+  require "no programming prowess". By the quiz's definitions, that is a
+  platform containing the system.
+
+Current status:
+
+- done: the system, scripts, documentation;
+- missing: designing a variant without code, and releasing or packaging a
+  variant.
+
+The assistant offered to build that platform layer next.
