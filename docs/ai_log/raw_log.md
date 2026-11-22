@@ -929,3 +929,21 @@ from this log.
   Claude app.
 
 It also linked the report from the README.
+
+---
+
+## Entry 24 (2026-11-22 17:26 IST, transcript export)
+
+### Prompt (verbatim)
+
+```text
+Yes, export it
+```
+
+### Response summary
+
+The assistant exported the full session transcript (every prompt and
+response, verbatim) as a zip file of about 4 MB in the student's Downloads
+folder. Nothing was uploaded, and the file was not added to the repository.
+The student was advised to check it for personal details before attaching it
+to the submission. The export covers the conversation up to this request.
