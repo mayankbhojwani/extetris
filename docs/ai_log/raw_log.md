@@ -755,3 +755,24 @@ A hidden-window check in easy mode worked.
 
 The assistant pointed out that "hard" is close to "chaos". The mode weights
 are design choices the student may want to tune.
+
+---
+
+## Entry 20 (2026-11-22 16:16 IST, design decision)
+
+### Prompt (verbatim)
+
+```text
+Keep as is
+```
+
+### Response summary
+
+No code changed. The assistant recorded the decision to keep the Phase 5 mode
+weights as they are, including "hard" being close to "chaos" (1.76 vs 1.85
+average spawn holes). It listed the parts of the brief still open:
+
+- the documentation, the brief's "most important part": design documents with
+  UML diagrams, API documentation, a Game Programmer's Manual, and the AI usage
+  report;
+- run/build scripts for non-programmers.
