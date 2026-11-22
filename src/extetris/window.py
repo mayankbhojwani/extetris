@@ -15,6 +15,9 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 
 from .game import Game
+from .mixes import MODES
+
+MODE_NAMES = list(MODES) + ["progressive"]
 
 # One colour per difficulty class, so players can see how awkward a piece is.
 CLASS_COLOURS = {
@@ -35,7 +38,11 @@ Up             turn clockwise
 Z              turn anticlockwise
 Down           move down one row
 Space          drop to the bottom
-P              pause / resume"""
+P              pause / resume
+
+Pieces menu: choose which pieces appear (Classic ... Chaos).
+Progressive starts with classic pieces and adds harder ones
+every 10 lines."""
 
 
 class GameWindow:
@@ -102,6 +109,14 @@ class GameWindow:
         game_menu.add_command(label="Quit", command=self.root.destroy)
         menubar.add_cascade(label="Game", menu=game_menu)
 
+        self.mode_var = tk.StringVar(self.root, value=self.game.pieces_name)
+        pieces_menu = tk.Menu(menubar, tearoff=False)
+        for name in MODE_NAMES:
+            pieces_menu.add_radiobutton(label=name.capitalize(), value=name,
+                                        variable=self.mode_var,
+                                        command=lambda n=name: self.set_mode(n))
+        menubar.add_cascade(label="Pieces", menu=pieces_menu)
+
         help_menu = tk.Menu(menubar, tearoff=False)
         help_menu.add_command(label="Keys", command=self.show_keys)
         help_menu.add_command(label="About", command=self.show_about)
@@ -125,6 +140,12 @@ class GameWindow:
     def new_game(self):
         self.game.new_game()
         self._schedule_gravity()
+        self.redraw()
+
+    def set_mode(self, name):
+        """Switch the piece mix; it applies from the piece after next."""
+        self.game.set_pieces(name)
+        self.mode_var.set(name)
         self.redraw()
 
     def save_board(self):
@@ -189,6 +210,6 @@ class GameWindow:
 
         name = getattr(g.piece, "name", type(g.piece).__name__)
         nxt = getattr(g.next_piece, "name", type(g.next_piece).__name__)
-        self.status.set(f"Lines: {g.lines}   Pieces: {g.pieces_placed}   "
-                        f"Fall delay: {g.delay_ms} ms\n"
+        self.status.set(f"Lines: {g.lines}   Placed: {g.pieces_placed}   "
+                        f"Fall delay: {g.delay_ms} ms   Pieces: {g.pieces_name}\n"
                         f"Now: {name} ({type(g.piece).__name__})   Next: {nxt}")

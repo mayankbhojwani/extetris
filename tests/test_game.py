@@ -21,7 +21,7 @@ def always(name):
 
 class TestStarting(unittest.TestCase):
     def test_new_game_spawns_centred_at_top(self):
-        g = Game(piece_source=always("O"))
+        g = Game(pieces=always("O"))
         self.assertEqual((g.row, g.col), (0, 4))   # (10 - 2) // 2
         self.assertIsNotNone(g.next_piece)
         self.assertFalse(g.game_over or g.paused)
@@ -29,7 +29,7 @@ class TestStarting(unittest.TestCase):
 
     def test_piece_source_must_give_a_piece(self):
         with self.assertRaises(TypeError):
-            Game(piece_source=lambda rng: "not a piece")
+            Game(pieces=lambda rng: "not a piece")
 
     def test_bad_speed_settings(self):
         with self.assertRaises(ValueError):
@@ -41,20 +41,20 @@ class TestStarting(unittest.TestCase):
 class TestMoving(unittest.TestCase):
     def test_left_stops_at_the_wall(self):
         # Starter bug B4 at game level: the piece must not leave the board.
-        g = Game(piece_source=always("O"))
+        g = Game(pieces=always("O"))
         while g.move_left():
             pass
         self.assertEqual(g.col, 0)
         self.assertFalse(g.move_left())
 
     def test_right_stops_at_the_wall(self):
-        g = Game(piece_source=always("O"))
+        g = Game(pieces=always("O"))
         while g.move_right():
             pass
         self.assertEqual(g.col, 8)
 
     def test_turning_next_to_the_right_wall_kicks_inwards(self):
-        g = Game(piece_source=always("I"))
+        g = Game(pieces=always("I"))
         self.assertTrue(g.rotate_cw())            # now standing up
         while g.move_right():
             pass
@@ -64,7 +64,7 @@ class TestMoving(unittest.TestCase):
         self.assertEqual(g.col + g.piece.width, 10)
 
     def test_four_turns_return_to_same_shape(self):
-        g = Game(piece_source=always("T"))
+        g = Game(pieces=always("T"))
         start = g.piece
         for _ in range(4):
             g.rotate_ccw()
@@ -74,14 +74,14 @@ class TestMoving(unittest.TestCase):
 class TestDroppingAndLocking(unittest.TestCase):
     def test_hard_drop_locks_immediately(self):
         # Starter limitation L3: Space used to wait for the next gravity tick.
-        g = Game(piece_source=always("O"))
+        g = Game(pieces=always("O"))
         g.hard_drop()
         self.assertEqual(g.pieces_placed, 1)
         self.assertEqual(int(g.board.cells.sum()), 4)
         self.assertEqual(g.row, 0)               # new piece back at the top
 
     def test_tick_falls_then_locks(self):
-        g = Game(width=4, height=4, piece_source=always("O"))
+        g = Game(width=4, height=4, pieces=always("O"))
         self.assertTrue(g.tick())
         self.assertEqual(g.row, 1)
         g.tick()                                  # reaches the floor (row 2)
@@ -89,12 +89,12 @@ class TestDroppingAndLocking(unittest.TestCase):
         self.assertEqual(g.pieces_placed, 1)
 
     def test_soft_drop_is_one_tick(self):
-        g = Game(piece_source=always("O"))
+        g = Game(pieces=always("O"))
         g.soft_drop()
         self.assertEqual(g.row, 1)
 
     def test_clearing_lines_counts_them(self):
-        g = Game(width=4, height=6, piece_source=always("O"))
+        g = Game(width=4, height=6, pieces=always("O"))
         g.board = Board.from_text("....\n....\n....\n....\n#..#\n#..#")
         g.hard_drop()                             # O fills the middle gap
         self.assertEqual(g.lines, 2)
@@ -104,7 +104,7 @@ class TestDroppingAndLocking(unittest.TestCase):
 class TestSpeed(unittest.TestCase):
     def test_speed_up_when_a_multi_line_clear_jumps_past_100(self):
         # Starter bug B8: 99 -> 101 lines never triggered a speed-up.
-        g = Game(width=4, height=6, piece_source=always("O"))
+        g = Game(width=4, height=6, pieces=always("O"))
         g.board = Board.from_text("....\n....\n....\n....\n#..#\n#..#")
         g.lines = 99
         g.hard_drop()
@@ -123,7 +123,7 @@ class TestSpeed(unittest.TestCase):
 
 class TestPauseAndGameOver(unittest.TestCase):
     def test_pause_blocks_every_move(self):
-        g = Game(piece_source=always("T"))
+        g = Game(pieces=always("T"))
         g.toggle_pause()
         before = (g.row, g.col, g.piece)
         for move in (g.move_left, g.move_right, g.rotate_cw, g.rotate_ccw,
@@ -134,7 +134,7 @@ class TestPauseAndGameOver(unittest.TestCase):
         self.assertTrue(g.move_left())
 
     def test_game_over_when_new_piece_cannot_fit(self):
-        g = Game(width=4, height=4, piece_source=always("O"))
+        g = Game(width=4, height=4, pieces=always("O"))
         g.board = Board.from_text("....\n....\n.#..\n#.##")
         g.hard_drop()                             # lands on top; next can't fit
         self.assertTrue(g.game_over)
@@ -145,7 +145,7 @@ class TestPauseAndGameOver(unittest.TestCase):
 
     def test_new_game_after_game_over(self):
         # Starter bug B7: game_over_status was never set, so this never worked.
-        g = Game(width=4, height=4, piece_source=always("O"))
+        g = Game(width=4, height=4, pieces=always("O"))
         g.board = Board.from_text("....\n....\n.#..\n#.##")
         g.hard_drop()
         g.new_game()
@@ -190,7 +190,7 @@ class TestWindow(unittest.TestCase):
             self.skipTest(f"no window available: {e}")
         self.root.withdraw()
         from extetris.window import GameWindow
-        self.win = GameWindow(Game(piece_source=always("T")), master=self.root)
+        self.win = GameWindow(Game(pieces=always("T")), master=self.root)
 
     def tearDown(self):
         self.root.destroy()

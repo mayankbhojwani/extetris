@@ -16,6 +16,7 @@ Fixes from the starter's engine.py (see docs/analysis.md):
 import random
 
 from .board import Board
+from .mixes import PieceMix, mode
 from .pieces import ExTetromino
 from .shape import Shape
 
@@ -24,24 +25,25 @@ KICKS = ((0, 0), (0, -1), (0, 1), (0, -2), (0, 2), (-1, 0))
 
 
 def any_piece(rng):
-    """Default piece source: every one of the 34 pieces equally likely.
-
-    A piece source is any function that takes a random.Random and returns a
-    new piece. How often each piece appears is the next phase's job; it will
-    plug in here.
-    """
+    """Every one of the 34 pieces equally likely (the same as mode "chaos")."""
     info = rng.choice(ExTetromino.catalogue())
     return info.piece_class(info.name, rng=rng)
 
 
 class Game:
-    def __init__(self, width=10, height=20, piece_source=None, rng=None,
+    def __init__(self, width=10, height=20, pieces="progressive", rng=None,
                  start_delay_ms=1000, speedup_every=100, speedup_factor=0.9,
                  min_delay_ms=50):
         """A new game, ready to play.
 
         width, height:   board size (default 10 x 20, as in the starter).
-        piece_source:    function rng -> piece; default any_piece.
+        pieces:          which pieces appear and how often. One of:
+                           * a mode name: "classic", "easy", "normal",
+                             "hard", "chaos" or "progressive" (default:
+                             classic pieces first, harder ones as lines
+                             are cleared);
+                           * a PieceMix, e.g. mix(NoHole=60, OneHole=40);
+                           * any function rng -> piece.
         rng:             random.Random; pass one with a seed to replay a game.
         start_delay_ms:  time between automatic one-row falls at the start.
         speedup_every:   lines to clear for each automatic speed-up
@@ -55,7 +57,7 @@ class Game:
             raise ValueError("speedup_every must be at least 1")
         self.width = width
         self.height = height
-        self.piece_source = piece_source or any_piece
+        self.set_pieces(pieces)
         self.rng = rng or random.Random()
         self.start_delay_ms = start_delay_ms
         self.speedup_every = speedup_every
@@ -75,10 +77,25 @@ class Game:
         self.next_piece = self._draw()
         self._spawn()
 
+    def set_pieces(self, pieces):
+        """Change the piece mix; it applies from the next piece drawn."""
+        if isinstance(pieces, str):
+            pieces = mode(pieces)
+        if not callable(pieces):
+            raise TypeError("pieces must be a mode name, a PieceMix or a function")
+        self.pieces = pieces
+
+    @property
+    def pieces_name(self):
+        return getattr(self.pieces, "name", "custom")
+
     def _draw(self):
-        piece = self.piece_source(self.rng)
+        if isinstance(self.pieces, PieceMix):
+            piece = self.pieces.draw(self.rng, self.lines)
+        else:
+            piece = self.pieces(self.rng)
         if not isinstance(piece, Shape):
-            raise TypeError("piece_source must return a piece (a Shape)")
+            raise TypeError("pieces must produce a piece (a Shape)")
         return piece
 
     def _spawn(self):

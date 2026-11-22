@@ -625,3 +625,133 @@ directly (as the test did) left the old timer running. The assistant fixed
 this in `window.py`. All 78 tests now pass. The assistant also opened the real
 window for 1.5 s and closed it automatically. The game has not been played by
 hand yet; that is for the student to check.
+
+---
+
+## Entry 17 (2026-11-22 16:10 IST, manual play check)
+
+### Prompt (verbatim)
+
+```text
+they cant go through wals
+```
+
+(Before this, the student ran `python3 play.py` in their terminal; it exited
+with no errors.)
+
+### Response summary
+
+No files changed except this log. The assistant noted the result: by hand,
+pieces stop at both walls, confirming the fix for starter bug B4. It listed
+the remaining manual checks: turning next to a wall, Space locking, pause and
+About, clearing a row, and New Game after Game Over.
+
+---
+
+## Entry 18 (2026-11-22 16:12 IST, design question)
+
+### Prompt (verbatim)
+
+```text
+it seems fine but do we have to use all these type of pieces kinda makes the game boring?
+```
+
+(Before this, the student ran `python3 play.py` twice more; both runs exited
+with no errors.)
+
+### Response summary
+
+No files changed except this log. The assistant explained that using all 34
+pieces is not required. The current default (all 34 equally likely, so about 4
+in 5 pieces are corner-touching ones) was only a placeholder. The starter's own
+default was the 7 classic pieces only. Choosing which pieces appear and how
+often is exactly the brief's second requirement, replacing the "repeat the
+index" trick, and the planned Phase 5.
+
+It proposed three ways to control the piece mix, which can be combined:
+
+- (A) a mix a designer sets by difficulty class or by individual piece;
+- (B) ready-made modes: Classic, Easy, Normal, Hard, Chaos;
+- (C) a progressive mix that starts with the classics and adds harder classes
+  as more lines are cleared.
+
+It recommended A as the base, with B and C built on it, and asked the student
+to decide.
+
+---
+
+## Entry 19 (2026-11-22 16:15 IST, Phase 5: piece mixes)
+
+### Prompt (verbatim)
+
+```text
+Yes, A + B + C
+```
+
+### Response summary
+
+The assistant built Phase 5.
+
+**`src/extetris/mixes.py` (functional-OO)**
+
+A `PieceMix` wraps one function, weight(piece info, lines cleared) -> number.
+Everything else creates new weight functions:
+
+- (A) `mix(...)` takes weights for groups:
+  - groups can be piece names, class names, "classic" or "all";
+  - a group's weight is shared by its pieces;
+  - overlapping groups add up.
+
+  `only(...)` makes the chosen pieces equally likely.
+- (B) `MODES`:
+  - classic: the 7 classic pieces;
+  - easy: classic 85, OneHole 15;
+  - normal: classic 55, OneHole 20, TwoHole 15, ThreeHole 5, FourHole 4,
+    SixHole 1;
+  - hard: classic 25, OneHole 25, TwoHole 25, ThreeHole 12, FourHole 10,
+    SixHole 3;
+  - chaos: all 34 equally likely.
+- (C) `progressive(stages, every_lines=10)` defaults to classic, then easy at
+  10 lines, normal at 20 and hard from 30 on.
+
+Helpers: `probabilities()`, `probabilities_by_class()`, `expected_holes()`
+(a difficulty score) and `draw()`. Bad keys, negative weights or all-zero
+weights raise clear errors.
+
+**Integration**
+
+- `Game(pieces=...)` replaces `piece_source`. It accepts a mode name, a
+  PieceMix or any function rng -> piece. The **default is now
+  "progressive"**, where the default used to be all 34 pieces equally.
+  Progressive mixes see the current line count.
+- `Game.set_pieces()` switches the mix mid-game.
+- The window has a new "Pieces" menu (radio buttons for the 6 modes), and the
+  status line shows the mode.
+- `python3 play.py --mode easy` starts in a chosen mode; an unknown mode
+  gives a clear error message.
+
+**Tests:** `tests/test_mixes.py`, 21 tests:
+
+- class sharing, the repeat-index replacement (I:3, O:1 gives 75 % / 25 %),
+  names, aliases and groups, overlap, bad input, and a custom weight function;
+- every mode adds up to 1, and the modes get harder in order (by average
+  holes);
+- a 5000-draw frequency check;
+- progressive stages;
+- the Game integration.
+
+`tests/test_game.py` was updated for the renamed parameter. All 99 tests pass.
+A hidden-window check in easy mode worked.
+
+**Average spawn holes per mode**
+
+| mode | average holes |
+|---|---|
+| classic | 0.29 |
+| easy | 0.39 |
+| normal | 1.03 |
+| hard | 1.76 |
+| chaos | 1.85 |
+
+The assistant pointed out that "hard" is close to "chaos". The mode weights
+are design choices the student may want to tune.
