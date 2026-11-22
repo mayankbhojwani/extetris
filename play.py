@@ -3,16 +3,57 @@
 Choose the piece mode:      python3 play.py --mode easy
                             (classic, easy, normal, hard, chaos, progressive)
 List all the pieces:        python3 play.py --catalogue
+Check your setup:           python3 play.py --check
 
-Needs Python 3 with numpy and tkinter. (The original starter game is still
+Needs Python 3.9+ with numpy and tkinter. (The original starter game is still
 available as `python3 engine.py`.)
 """
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+HELP_NUMPY = ("numpy is missing. Install it with:\n"
+              "    python3 -m pip install numpy\n"
+              "(on Windows:  py -m pip install numpy)")
+HELP_TK = ("tkinter is missing.\n"
+           "  macOS / Windows: install Python from https://www.python.org\n"
+           "  Linux (Debian/Ubuntu): sudo apt install python3-tk")
 
-from extetris.__main__ import main  # noqa: E402
+
+def check_setup(need_window=True):
+    """Return a list of problems (empty if everything is ready)."""
+    problems = []
+    if sys.version_info < (3, 9):
+        problems.append(f"Python 3.9 or newer is needed; this is {sys.version.split()[0]}.")
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        problems.append(HELP_NUMPY)
+    if need_window:
+        try:
+            import tkinter  # noqa: F401
+        except ImportError:
+            problems.append(HELP_TK)
+    return problems
+
+
+def main():
+    args = sys.argv[1:]
+    problems = check_setup(need_window="--catalogue" not in args)
+    if "--check" in args:
+        if problems:
+            print("Not ready:\n\n" + "\n\n".join(problems))
+            sys.exit(1)
+        import numpy
+        import tkinter
+        print(f"Ready to play.\n  Python  {sys.version.split()[0]}\n"
+              f"  numpy   {numpy.__version__}\n  Tk      {tkinter.TkVersion}")
+        return
+    if problems:
+        sys.exit("Can't start ExTetris:\n\n" + "\n\n".join(problems))
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+    from extetris.__main__ import main as run
+    run(args)
+
 
 if __name__ == "__main__":
     main()

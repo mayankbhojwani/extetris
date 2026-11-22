@@ -842,3 +842,49 @@ types).
 All 103 tests pass. Each example window opened and closed automatically.
 The README and manual already refer to `play.sh`, `play.command`,
 `play.bat` and the Makefile, which are built in the next step.
+
+---
+
+## Entry 22 (2026-11-22 17:16 IST, Phase 7: run scripts)
+
+### Prompt (verbatim)
+
+The request came mid-turn during Phase 6 and is quoted in Entry 21:
+
+```text
+also build the scripts after this i'll be back
+```
+
+### Response summary
+
+The student was away, so the assistant built and pushed this phase without a
+checkpoint, as the message asked.
+
+**Files**
+
+| file | what it does |
+|---|---|
+| `play.py` | now checks Python 3.9+, numpy and tkinter first and prints plain install instructions if any is missing; new `--check` option prints the versions |
+| `play.sh` (macOS/Linux) | finds python3 or python (3.9+) and runs `play.py` with any options passed |
+| `play.command` (macOS) | double-click launcher; keeps the Terminal window open with a message if something goes wrong |
+| `play.bat` (Windows) | double-click launcher; uses `py -3`, falling back to `python`, and pauses with an install hint on error; CRLF line endings |
+| `Makefile` | play (`MODE=...`), check, catalogue, test, docs, census, clean; `clean` only touches the new folders, never the starter's |
+| `.gitattributes` | keeps CRLF for .bat and LF for .sh/.command |
+
+**Tests on this Mac**
+
+- `./play.sh --check` reports Python 3.13.13, numpy 2.5.1 and Tk 8.6.
+- An unknown `--mode` gives a clear message and exit code 1.
+- `--catalogue` works.
+- `make test`: 103 tests OK.
+- A simulated missing numpy prints the install instructions.
+- `./play.sh`, `./play.command` and `make play MODE=easy` each opened the
+  game window, which was still running after 2.5 s, and were then stopped.
+
+The first launch test hung: killing the shell left the game process holding
+the output pipe. The assistant stopped it and redid the test with output to a
+file and process-group kill. macOS has no `timeout` command, so one attempt
+had to be repeated without it.
+
+**Not tested:** `play.bat`, since no Windows machine was available, and a
+real double-click in Finder (the launch was tested from the command line).
