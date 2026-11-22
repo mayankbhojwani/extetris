@@ -1011,3 +1011,22 @@ containing the system would need:
 A tkinter "Variant Designer" window would stay within the allowed tools.
 Jupyter would need the student's permission, as it is an extra dependency.
 It asked the student which direction to take.
+
+---
+
+## Entry 27 (2026-11-22 17:28 IST, brief answer)
+
+### Prompt (verbatim)
+
+```text
+give me a brief answer
+```
+
+### Response summary
+
+The assistant gave a short answer to the variant/platform/system question:
+
+- It is a Game Variant Programming System: an API library that variants such
+  as `play.py` and `examples/` are built on.
+- It is not a platform, because there is no environment for designing,
+  previewing, testing and packaging variants without code.
