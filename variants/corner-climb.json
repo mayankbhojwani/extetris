@@ -15,7 +15,6 @@
   },
   "pieces": {
     "kind": "progressive",
-    "every_lines": 8,
     "stages": [
       "classic",
       {
@@ -25,7 +24,8 @@
       },
       "hard",
       "chaos"
-    ]
+    ],
+    "every_lines": 8
   },
   "window": {
     "cell_size": 28

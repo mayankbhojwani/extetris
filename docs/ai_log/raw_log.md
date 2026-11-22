@@ -1142,3 +1142,41 @@ windows.
 - The assistant mistakenly launched the designer with `--help` in a
   foreground command, which opened a window and hung. It stopped it, left no
   stray processes, and added proper `--help` handling.
+
+---
+
+## Entry 31 (2026-11-22 17:42 IST, run the designer)
+
+### Prompt (verbatim)
+
+```text
+run it for me
+```
+
+### Response summary
+
+The assistant opened the Variant Designer on the student's computer
+(`./design.sh variants/corner-climb.json`, running in the background) so the
+student could try it by hand. It listed what to check.
+
+---
+
+## Entry 32 (2026-11-22 17:51 IST, designer checked by hand)
+
+### Prompt (verbatim)
+
+```text
+Looks good
+```
+
+(Before this, the student used the Variant Designer and closed it. On closing,
+`variants/corner-climb.json` was saved. Only the order of two keys changed;
+the settings are identical.)
+
+### Response summary
+
+The assistant recorded the manual check. It updated the Phase 8 section of
+`docs/ai_usage_report.md`: the student tried the designer by hand and it
+looked good, and the remaining weakness is that only the student has tried
+it. It committed the report, this log and the re-saved sample variant, and
+pushed them.

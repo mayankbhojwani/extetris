@@ -357,8 +357,9 @@ Full prompts are in the log; short ones are quoted here.
    - The robot clearly separates the modes: about 73 lines cleared on
      classic, 19 on normal and 2 on chaos.
    - The designer window fits the screen in every mode.
-   - I haven't yet used the designer by hand, and the AI could not take a
-     screenshot of it, because macOS blocks screen capture.
+   - The AI could not take a screenshot of the designer (macOS blocks screen
+     capture), so it opened the designer for me and I tried it by hand. It
+     looked good.
 7. **How:**
    - The AI's own review caught two designer problems before any test ran:
      the slider value labels, and a "chances after N lines" slider that would
@@ -368,7 +369,7 @@ Full prompts are in the log; short ones are quoted here.
 8. **Strengths:** it now meets the main requirement directly. A designer can
    design, check, test, play, document and ship a variant without code, and
    the generated README always matches the variant. **Weaknesses:**
-   - the designer's look and feel is untested by a real user;
+   - the designer has only been tried by me, not by other designers;
    - the robot is a simple heuristic player, not a human;
    - releases still need Python installed (they aren't standalone apps).
 
