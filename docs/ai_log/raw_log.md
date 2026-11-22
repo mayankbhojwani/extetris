@@ -947,3 +947,18 @@ response, verbatim) as a zip file of about 4 MB in the student's Downloads
 folder. Nothing was uploaded, and the file was not added to the repository.
 The student was advised to check it for personal details before attaching it
 to the submission. The export covers the conversation up to this request.
+
+---
+
+## Entry 25 (2026-11-22 17:27 IST, report detail)
+
+### Prompt (verbatim)
+
+```text
+4 hours
+```
+
+### Response summary
+
+The assistant filled in the student's own time (about 4 hours) in section 2
+of `docs/ai_usage_report.md`, replacing the blank. Nothing else changed.

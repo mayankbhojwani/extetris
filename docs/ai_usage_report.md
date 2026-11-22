@@ -49,7 +49,7 @@ All on 22 November 2026 (IST), from the log timestamps:
 
 The working session took about **2 hours** in total, in two blocks. On top of
 that came my own time reading the explanations, playing the game and reviewing
-documents: **about ___ hours** *(fill in before submitting)*.
+documents: **about 4 hours**.
 
 ## 3. Phase by phase
 
