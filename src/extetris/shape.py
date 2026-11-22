@@ -11,6 +11,8 @@ from . import geometry as g
 
 
 class Shape:
+    """Any piece: a read-only grid of filled squares that can be turned."""
+
     def __init__(self, matrix):
         self._matrix = g.trim(matrix)
 
@@ -22,10 +24,12 @@ class Shape:
 
     @property
     def height(self):
+        """Rows in the current turn."""
         return self._matrix.shape[0]
 
     @property
     def width(self):
+        """Columns in the current turn."""
         return self._matrix.shape[1]
 
     @property
@@ -61,9 +65,11 @@ class Shape:
 
     # --- turning: always returns a new object --------------------------------
     def rotated_cw(self):
+        """A new piece: this one turned clockwise."""
         return self._with_matrix(g.rotate_cw(self._matrix))
 
     def rotated_ccw(self):
+        """A new piece: this one turned anticlockwise."""
         return self._with_matrix(g.rotate_ccw(self._matrix))
 
     def _with_matrix(self, matrix):

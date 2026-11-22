@@ -46,6 +46,8 @@ every 10 lines."""
 
 
 class GameWindow:
+    """A window to play a Game in: draws it and sends key presses to it."""
+
     def __init__(self, game=None, cell_size=28, title="ExTetris", master=None):
         """A window for `game` (a new default Game if none is given).
 
@@ -138,6 +140,7 @@ class GameWindow:
 
     # --- menu actions --------------------------------------------------------------
     def new_game(self):
+        """Start a fresh game (menu: Game > New Game)."""
         self.game.new_game()
         self._schedule_gravity()
         self.redraw()
@@ -149,6 +152,7 @@ class GameWindow:
         self.redraw()
 
     def save_board(self):
+        """Ask for a file name and save the board as text."""
         was_paused = self.game.paused
         self.game.set_paused(True)
         path = filedialog.asksaveasfilename(
@@ -169,9 +173,11 @@ class GameWindow:
         self.redraw()
 
     def show_keys(self):
+        """Show the list of keys (menu: Help > Keys)."""
         self._dialog("Keys", KEYS_HELP)
 
     def show_about(self):
+        """Show the About box (menu: Help > About)."""
         self._dialog("About ExTetris",
                      "ExTetris: Tetris with pieces that may touch at corners.\n"
                      "Piece colour shows its difficulty class "
@@ -186,6 +192,7 @@ class GameWindow:
                                      y + self.cell - 1, fill=fill, outline="")
 
     def redraw(self):
+        """Draw the board, the falling piece and the status line again."""
         g, c = self.game, self.canvas
         c.delete("all")
         for x in range(g.width + 1):

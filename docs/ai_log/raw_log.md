@@ -776,3 +776,69 @@ average spawn holes). It listed the parts of the brief still open:
   UML diagrams, API documentation, a Game Programmer's Manual, and the AI usage
   report;
 - run/build scripts for non-programmers.
+
+---
+
+## Entry 21 (2026-11-22 17:12 IST, Phase 6: documentation)
+
+### Prompt (verbatim)
+
+```text
+Documentation
+```
+
+A second message arrived while the assistant was working (verbatim):
+
+```text
+also build the scripts after this i'll be back
+```
+
+### Response summary (documentation part)
+
+**API reference**
+
+- `tools/make_api_docs.py` generates `docs/api.md` from the docstrings using
+  `inspect`. It stops with an error if any exported name is undocumented.
+- The first generated version showed 21 members with no docstring. The
+  assistant added short docstrings to them in `game.py`, `window.py`,
+  `pieces.py`, `shape.py` and `board.py` (no behaviour change).
+- Signatures in the reference are shown without `self`.
+
+**`docs/design.md`**
+
+Goals, a layer diagram, a UML class diagram and a sequence diagram (what
+happens on Space). All diagrams are Mermaid, which GitHub draws. It also
+records:
+
+- the design decisions taken at each checkpoint;
+- a table mapping each starter bug to the place it was fixed;
+- the testing summary;
+- known limitations.
+
+The assistant checked that all 3 Mermaid diagrams render without errors. It
+did this by loading them with mermaid@10.9.1 in the built-in browser, from a
+temporary local web server that it stopped afterwards. Before that check it
+had simplified some diagram syntax (one-line class bodies, bracketed return
+types).
+
+**`docs/manual.md`: Game Programmer's Manual (plain language)**
+
+- requirements, how to play, keys, menus and piece colours;
+- the pieces and the modes;
+- copying and editing an example, and a table of every setting;
+- `mix` / `only` / `progressive` recipes;
+- a "for programmers" section;
+- troubleshooting.
+
+**Other files**
+
+- `examples/`: `classic_tetris.py`, `gentle_start.py`,
+  `wide_board_custom_mix.py`. Each has a `make_game()` function.
+- `README.md`: play instructions, a documentation index, the folder layout,
+  and the licence (GPL-3.0, inherited from the starter).
+- `tests/test_examples.py`: 4 tests that run every example and every manual
+  code snippet.
+
+All 103 tests pass. Each example window opened and closed automatically.
+The README and manual already refer to `play.sh`, `play.command`,
+`play.bat` and the Makefile, which are built in the next step.

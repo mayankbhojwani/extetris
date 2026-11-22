@@ -30,6 +30,8 @@ def _matrix_of(piece):
 
 
 class Board:
+    """The grid pieces land on. Never changes; methods return new boards."""
+
     def __init__(self, width=10, height=20, cells=None):
         """An empty board, or one with the given filled squares.
 
@@ -87,6 +89,7 @@ class Board:
         return self._cells
 
     def is_empty(self):
+        """True if no square is filled."""
         return not self._cells.any()
 
     def fits(self, piece, row, col):

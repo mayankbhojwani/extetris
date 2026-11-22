@@ -31,6 +31,12 @@ def any_piece(rng):
 
 
 class Game:
+    """One game of ExTetris: the board, the falling piece, score and speed.
+
+    Every move method returns True if it changed something, False if it
+    was blocked (by a wall, another piece, pause or game over).
+    """
+
     def __init__(self, width=10, height=20, pieces="progressive", rng=None,
                  start_delay_ms=1000, speedup_every=100, speedup_factor=0.9,
                  min_delay_ms=50):
@@ -87,6 +93,7 @@ class Game:
 
     @property
     def pieces_name(self):
+        """Name of the current piece mix, e.g. "progressive"."""
         return getattr(self.pieces, "name", "custom")
 
     def _draw(self):
@@ -114,23 +121,29 @@ class Game:
         return not (self.paused or self.game_over)
 
     def set_paused(self, paused):
+        """Pause (True) or resume (False). Ignored after game over."""
         if not self.game_over:
             self.paused = bool(paused)
 
     def toggle_pause(self):
+        """Pause if running, resume if paused."""
         self.set_paused(not self.paused)
 
     # --- player moves (each returns True if something changed) -------------------
     def move_left(self):
+        """Move the falling piece one column left."""
         return self.active and self._move_to(self.piece, self.row, self.col - 1)
 
     def move_right(self):
+        """Move the falling piece one column right."""
         return self.active and self._move_to(self.piece, self.row, self.col + 1)
 
     def rotate_cw(self):
+        """Turn the falling piece clockwise (with wall kicks)."""
         return self.active and self._turn_to(self.piece.rotated_cw())
 
     def rotate_ccw(self):
+        """Turn the falling piece anticlockwise (with wall kicks)."""
         return self.active and self._turn_to(self.piece.rotated_ccw())
 
     def soft_drop(self):
@@ -155,10 +168,12 @@ class Game:
 
     # --- speed (also used by the menu) -------------------------------------------
     def speed_up(self, times=1):
+        """Make pieces fall faster: delay x speedup_factor, `times` times."""
         delay = self.delay_ms * self.speedup_factor ** times
         self.delay_ms = max(self.min_delay_ms, int(delay))
 
     def slow_down(self):
+        """Undo one speed-up: delay / speedup_factor."""
         self.delay_ms = int(round(self.delay_ms / self.speedup_factor))
 
     # --- internals ---------------------------------------------------------------

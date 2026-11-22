@@ -174,10 +174,12 @@ class ExTetromino(Shape):
     # --- per-piece facts ------------------------------------------------------
     @property
     def name(self):
+        """The piece's name, e.g. "T" or "TwoHole-03"."""
         return self.info.name
 
     @property
     def spawn_holes(self):
+        """Holes its spawn turn leaves on a flat floor (its class number)."""
         return self.info.spawn_holes
 
     def __repr__(self):
