@@ -1246,3 +1246,34 @@ Yes, fix them
   "thinking it was finished too early" weakness, and described the two
   transcripts in section 8.
 - Ran the tests: 127 pass.
+
+---
+
+## Entry 35 (2026-11-26, commit)
+
+### Prompt (verbatim)
+
+```text
+Commit and push
+```
+
+### Response summary
+
+The assistant committed the Entry 34 fixes and pushed them to GitHub, together
+with the two `attempt-*` tags.
+
+---
+
+## Entry 36 (2026-11-26, attempts outside the repository)
+
+### Prompt (verbatim)
+
+```text
+no other attempts outside this repo
+```
+
+### Response summary
+
+The assistant added a sentence to section 4 of the report saying there were
+no attempts outside this repository (no other AI tools or chats, and no
+deleted earlier versions), and recorded this entry.

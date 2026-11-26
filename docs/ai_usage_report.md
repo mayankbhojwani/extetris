@@ -383,7 +383,8 @@ Nothing was thrown away. Every earlier version that reached a commit is still
 in the git history, and the important ones are tagged so they can be checked
 out and run. Ideas that were dropped before any code was written are recorded
 in the log. They are listed here in order, with what was wrong with each and
-what replaced it.
+what replaced it. There were no attempts outside this repository: no other
+AI tools or chats, and no earlier versions that were deleted.
 
 To run an earlier version:
 
