@@ -53,6 +53,7 @@ From the log timestamps (IST). Everything up to Entry 32 was on 22 November
 | 17:42 – 17:51 | I tried the Variant Designer by hand | 31 – 32 |
 | 26 Nov | review against the professor's note on reporting; this report's [attempts section](#4-earlier-and-less-successful-attempts) added; a starter file restored | 33 – 36 |
 | 26 Nov | asked what else to improve; checked the project against the 6 Nov tutorial video; Phase 9 | 37 – 39 |
+| 26 Nov | pushed Phase 9; exported both transcripts, removed personal details from them and put them in one zip | 40 |
 
 The working session took about **2½ hours** in total, in two blocks. On top of
 that came my own time reading the explanations, playing the game and reviewing
@@ -605,8 +606,9 @@ The work ran over two app sessions, so there are two transcripts:
 | session | log entries | export |
 |---|---|---|
 | 22 November | 1 – 32 | the export made at Entry 24 stops there, so the session is exported again in full to cover Phase 8 |
-| 26 November | 33 onwards | exported at the end of that session |
+| 26 November | 33 – 40 | exported after Phase 9 was pushed (Entry 40); the export ends just before the cleaning steps that Entry 40 records |
 
 The transcripts are not committed to the repository, because they contain
 personal details (file paths and account information) that I removed before
-attaching them.
+attaching them. Both cleaned transcripts are attached as one file,
+`extetris-transcripts-cleaned.zip` (Entry 40).

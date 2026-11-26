@@ -1384,3 +1384,72 @@ Build both
 - Tagged the version before this phase as `attempt-4-before-tutorial`
   (`eab9245`) and added it to the report's attempts table. Added Phase 9 to
   the report.
+
+## Entry 40 (2026-11-26, push, export and clean the transcripts)
+
+### Prompts (verbatim, in order)
+
+```text
+Push now
+```
+
+```text
+everthing done?
+```
+
+```text
+export
+```
+
+```text
+Leave it out
+```
+
+```text
+clean the personal details from the zips
+```
+
+```text
+delete the original zips
+```
+
+```text
+can you put all under one zip file
+```
+
+```text
+should I submit then?
+```
+
+```text
+Yes, log and push
+```
+
+### Response summary
+
+- **Push now:** committed Phase 9 (`7d71307`) and pushed it with the
+  `attempt-4-before-tutorial` tag.
+- **everthing done?:** the code part was done. What remained was the
+  transcript export, the Moodle quiz and trying the new designer controls by
+  hand.
+- **export:** exported both app sessions as transcript zips (22 Nov:
+  Entries 1–32; 26 Nov: Entries 33–39). The app also listed a third, short
+  session that was a quiz on the current build; on **Leave it out** it was
+  not exported, because it isn't development work.
+- **clean the personal details:** made cleaned copies of both zips. The email
+  address, the Mac user name and home folder, the Claude organization ID, a
+  folder listing that showed other course lab files with student IDs, and
+  most of the app's session metadata were removed or replaced. The GitHub
+  username was kept, because it is in the public repository URL anyway. A
+  scan found none of these details left, and every line still parses as JSON.
+- **delete the original zips:** the two uncleaned exports were moved to the
+  Trash (not deleted for good). An older uncleaned export from 22 Nov is
+  still in Downloads and is not part of the submission.
+- **one zip:** both cleaned transcripts are now one file,
+  `extetris-transcripts-cleaned.zip`, with a folder per session. Scanned
+  again: no personal details found.
+- **should I submit then?:** the repository was clean and pushed, and all 149
+  tests passed. The only gap was this log, which stopped at Entry 39. So this
+  entry was added, along with a timeline row and a transcript note in the
+  report, and pushed.
+- The designer's new controls are still to be tried by hand.
