@@ -26,6 +26,13 @@ Example file:
     {"kind": "progressive", "every_lines": 10,
      "stages": ["classic", {"classic": 80, "OneHole": 20}, "hard"]}
 A progressive stage is a mode name or a weights table like the "mix" one.
+Weights can name pieces, classes, "classic", "all", or property groups such
+as "box:3x3", "guaranteed:2", "deepest:1" and "fill>=50" (see mixes.py).
+
+Any of them can also say how the pieces react to the board (6 Nov tutorial):
+    "fairness": "fair" | "assistive" | "unfair",  "strength": 0 to 1
+e.g. {"kind": "mode", "mode": "normal", "fairness": "assistive", "strength": 0.6}
+Without "fairness" the game is fair.
 """
 import copy
 import json
@@ -34,7 +41,7 @@ import re
 from pathlib import Path
 
 from .game import Game
-from .mixes import MODES, _group, mix, mode, progressive
+from .mixes import MODES, STYLES, BoardAwareMix, _group, mix, mode, progressive
 from .pieces import DIFFICULTY_CLASSES, ExTetromino
 
 FORMAT = "extetris-variant/1"
@@ -167,6 +174,20 @@ class Variant:
     def _piece_problems(self, p):
         if not isinstance(p, dict) or p.get("kind") not in PIECE_KINDS:
             return ["pieces kind must be 'mode', 'mix' or 'progressive'."]
+        return self._fairness_problems(p) + self._kind_problems(p)
+
+    @staticmethod
+    def _fairness_problems(p):
+        out = []
+        if p.get("fairness", "fair") not in STYLES:
+            out.append(f"pieces fairness must be one of {', '.join(STYLES)} "
+                       f"(now: {p.get('fairness')!r}).")
+        strength = p.get("strength", 1)
+        if not _is_number(strength) or not 0 <= strength <= 1:
+            out.append(f"pieces strength must be a number from 0 to 1 (now: {strength!r}).")
+        return out
+
+    def _kind_problems(self, p):
         if p["kind"] == "mode":
             if p.get("mode") not in MODE_NAMES:
                 return [f"Unknown piece mode {p.get('mode')!r}; choose from "
@@ -203,6 +224,13 @@ class Variant:
         """The PieceMix this variant describes."""
         self._check()
         p = self.data["pieces"]
+        base = self._base_mix(p)
+        style = p.get("fairness", "fair")
+        if style == "fair":
+            return base
+        return BoardAwareMix(base, style, p.get("strength", 1))
+
+    def _base_mix(self, p):
         name = self.name
         if p["kind"] == "mode":
             return mode(p["mode"])
@@ -261,6 +289,13 @@ class Variant:
             "",
             "## Pieces", "",
         ]
+        style = d["pieces"].get("fairness", "fair")
+        if style != "fair":
+            what = {"assistive": "pieces that fit the board without leaving holes",
+                    "unfair": "pieces that can't be placed without leaving holes"}[style]
+            lines += [f"**{style.capitalize()}** (strength {d['pieces'].get('strength', 1)}): "
+                      f"the game looks at the board and favours {what}. "
+                      "The chances below are before that adjustment.", ""]
         m = self.piece_mix()
         for start in self.stage_starts():
             if len(self.stage_starts()) > 1:

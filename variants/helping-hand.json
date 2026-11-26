@@ -1,0 +1,25 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Helping Hand",
+  "author": "",
+  "description": "Normal pieces, but the game looks at your board and prefers pieces that fit without leaving holes.",
+  "board": {
+    "width": 10,
+    "height": 20
+  },
+  "speed": {
+    "start_delay_ms": 1000,
+    "speedup_every": 10,
+    "speedup_factor": 0.85,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "mode",
+    "mode": "normal",
+    "fairness": "assistive",
+    "strength": 0.8
+  },
+  "window": {
+    "cell_size": 28
+  }
+}

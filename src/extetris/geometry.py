@@ -178,5 +178,25 @@ def spawn_holes(m):
     return holes(spawn_turns(m)[0])
 
 
+def guaranteed_holes(m):
+    """Holes the piece leaves on a flat floor in its BEST turn: the holes it
+    is sure to leave however the player turns it (6 Nov tutorial)."""
+    return min(holes(t) for t in distinct_rotations(m))
+
+
+def deepest_hole(m):
+    """The most empty squares under one column of this turn on a flat floor.
+    A deep hole is worse than several shallow ones: it is harder to uncover
+    and fill later (6 Nov tutorial)."""
+    return max(hole_profile(m))
+
+
+def box_fill(m):
+    """Share of the bounding box that is filled, from 0 to 1 (same for every
+    turn). For 4 squares: 1.0 for I and O, 0.25 for the long diagonal."""
+    m = trim(m)
+    return float(m.sum()) / m.size
+
+
 def render(m, filled="█", empty="·"):
     return "\n".join("".join(filled if v else empty for v in row) for row in trim(m))

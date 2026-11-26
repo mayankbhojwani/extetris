@@ -1277,3 +1277,110 @@ no other attempts outside this repo
 The assistant added a sentence to section 4 of the report saying there were
 no attempts outside this repository (no other AI tools or chats, and no
 deleted earlier versions), and recorded this entry.
+
+---
+
+## Entry 37 (2026-11-26, what else to improve)
+
+### Prompt (verbatim)
+
+```text
+also what else can I do to imrpve it
+```
+
+### Response summary
+
+The assistant said the professor grades the development story most, so the
+best improvements add dated evidence to the report. In priority order:
+
+1. watch the 6 November tutorial video and check the hole classes against
+   it (the report never mentioned it);
+2. write something myself without AI and time it, to give real numbers for
+   the effort comparison;
+3. have a classmate use the designer with only the manual;
+4. playtest the modes and tune the weights;
+5. test the Windows launchers;
+6. take the Moodle quiz;
+7. clone the repository fresh and follow only the README, as an evaluator
+   would;
+8. link the design to PoPL concepts if the design document doesn't already.
+
+---
+
+## Entry 38 (2026-11-26, the 6 Nov tutorial video)
+
+### Prompt (verbatim)
+
+The home-folder part of the path is shortened to `~`; the rest is as typed.
+
+```text
+@"~/Downloads/pdc-jgva-kzh (2026-11-06 16_22 GMT+5_30).mp4" this is the tutorial video make sure I am applying whatveer is req
+```
+
+### Response summary
+
+- The video's screen shows only the starter code and an early draft of the
+  PDF, so the requirements are in the speech. There was no transcription
+  tool on the Mac. The assistant asked whether to install whisper.cpp and
+  its small English model (run locally, nothing uploaded). My answer was
+  "Yes, install (Recommended)".
+- It extracted frames and the audio, transcribed the audio, and compared
+  the transcript with the project.
+- **Already met:** a configuration-file-like way for designers to make
+  variants (the variant files and the designer), the class hierarchy and API
+  with a playable game, pieces built by a function rather than typed in, and
+  documentation that shows how the thinking changed.
+- **Missing 1:** fair / unfair / assistive games. The professor describes
+  piece chances that look at the board: unfair sends pieces that won't fit
+  the holes, assistive always sends a piece with a spot that leaves no hole.
+  Our mixes only saw a random number and the lines cleared.
+- **Missing 2:** more ways to classify: holes a piece is *guaranteed* to
+  leave in whichever turn, how deep a hole is, bounding-box shape and how
+  full the box is. Our classes used only the spawn turn's holes, and the box
+  size couldn't be chosen in a mix.
+- **Optional, mentioned in passing:** pieces of 1–5 squares, configurable
+  key sensitivity, other flip axes.
+- **For me:** take the Moodle quiz now and again after changes, since the
+  professor says the repeated quiz records the intermediate stages.
+- It asked whether to build both missing features or only the board-aware
+  one. The transcript is not committed, because it is the professor's
+  lecture.
+
+---
+
+## Entry 39 (2026-11-26, Phase 9: build both)
+
+### Prompt (verbatim)
+
+```text
+Build both
+```
+
+### Response summary
+
+- **Classification:** added `guaranteed_holes`, `deepest_hole` and
+  `box_fill` to `geometry.py` and to each piece's `PieceInfo`. Mixes can now
+  select pieces by property groups: `box:3x3`, `guaranteed:2`, `deepest:2`,
+  `fill>=50`. The six spawn-turn classes are unchanged.
+- **Finding:** for every 4-square piece the guaranteed holes equal the
+  spawn-turn holes, so the tutorial's "guaranteed holes" classification is
+  the same as the existing classes. They only differ for 5-square pieces
+  (8 of 166).
+- **Board-aware mixes:** `BoardAwareMix` with styles fair / assistive /
+  unfair and a strength from 0 to 1. It tries each candidate in every turn
+  and column on the current board and favours the pieces that leave the
+  fewest (assistive) or most (unfair) new holes. `Game` now passes its board
+  when it draws a piece; plain mixes and plain functions still work.
+- Robot check (3 games, up to 200 pieces): classic 73 / 78 / 48 lines and
+  normal 19 / 73 / 0 lines for fair / assistive / unfair.
+- **Platform:** variant files accept `"fairness"` and `"strength"`; the
+  designer got a "Pick by shape" row and a "Reacts to the board" box; two
+  sample variants were added (`helping-hand.json`, `unfair-ground.json`).
+- Updated the manual, the design document and the API reference, and added
+  `tests/test_tutorial.py` (22 tests). One test had the wrong expected count
+  and was corrected. All 149 tests pass.
+- Screen capture was blocked again, so the designer was driven from code and
+  its window measured (892 px tall, was 786). It still needs trying by hand.
+- Tagged the version before this phase as `attempt-4-before-tutorial`
+  (`eab9245`) and added it to the report's attempts table. Added Phase 9 to
+  the report.

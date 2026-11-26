@@ -51,7 +51,8 @@ From the log timestamps (IST). Everything up to Entry 32 was on 22 November
 | 17:27 – 17:30 | the professor's variant / platform / system question | 26 – 28 |
 | 17:30 – 17:40 | Phase 8: the platform layer | 29 – 30 |
 | 17:42 – 17:51 | I tried the Variant Designer by hand | 31 – 32 |
-| 26 Nov | review against the professor's note on reporting; this report's [attempts section](#4-earlier-and-less-successful-attempts) added; a starter file restored | 33 |
+| 26 Nov | review against the professor's note on reporting; this report's [attempts section](#4-earlier-and-less-successful-attempts) added; a starter file restored | 33 – 36 |
+| 26 Nov | asked what else to improve; checked the project against the 6 Nov tutorial video; Phase 9 | 37 – 39 |
 
 The working session took about **2½ hours** in total, in two blocks. On top of
 that came my own time reading the explanations, playing the game and reviewing
@@ -377,6 +378,79 @@ Full prompts are in the log; short ones are quoted here.
    - the robot is a simple heuristic player, not a human;
    - releases still need Python installed (they aren't standalone apps).
 
+### Phase 9: What the 6 Nov tutorial asked for (Entries 37–39)
+
+1. **Prompts:**
+   - *"also what else can I do to imrpve it"*
+   - the recording of the 6 November tutorial, with *"make sure I am
+     applying whatveer is req"*
+   - *"Build both"*
+2. **Response:**
+   - Its first suggestion was to check the hole classes against the 6 Nov
+     tutorial, which the report never mentioned.
+   - The video's screen shows only the starter code and an early PDF draft,
+     so it transcribed the audio on my Mac with whisper.cpp, which I approved
+     installing. It compared the transcript with the project.
+   - Already met: a configuration-file-like interface for designers (the
+     professor calls his engine constructor "like a configuration file"),
+     the class hierarchy and API with a playable game, generated pieces, and
+     the documentation.
+   - **Missing 1:** in the tutorial a game can be *fair* (pieces come
+     regardless of the board), *unfair* (the next piece won't fit the
+     holes) or *assistive* (the next piece always has a spot without a
+     hole). Our mixes never saw the board, so only fair was possible.
+   - **Missing 2:** the tutorial also classifies pieces by the holes they
+     are *guaranteed* to leave in whichever turn, by how deep a hole is, and
+     by the bounding box and how full it is. Our classes used only the
+     spawn turn's hole count.
+   - Optional ideas in the tutorial: pieces of other sizes, configurable
+     controls, other flip axes. Not done.
+3. **Interpreted:** my classes and mixes were a narrower reading than the
+   professor's. The spawn-turn classes didn't need to change; the missing
+   ideas could be added beside them.
+4. **Planned:** I chose to build both. Keep the six classes; add the new
+   measures as *groups* a mix can select; add board-aware mixes as a new
+   kind of mix the game hands its board to.
+5. **Implemented:**
+   - `geometry.py`: `guaranteed_holes`, `deepest_hole`, `box_fill`; each
+     piece's `PieceInfo` stores them;
+   - `mixes.py`: property groups (`box:3x3`, `guaranteed:2`, `deepest:2`,
+     `fill>=50`), `BoardAwareMix`, `assistive()`, `unfair()`, `fair()`,
+     `new_holes()`; `Game` passes its board when it draws a piece;
+   - variant files: `"fairness"` and `"strength"`; the designer has a
+     "Pick by shape" row and a "Reacts to the board" box; two sample
+     variants (`helping-hand`, `unfair-ground`);
+   - manual, design document, API reference; `tests/test_tutorial.py`.
+6. **Got:** all 149 tests pass. Robot, 3 games of up to 200 pieces:
+
+   | lines cleared | fair | assistive | unfair |
+   |---|---|---|---|
+   | classic pieces | 73 | 78 | 48 |
+   | normal pieces | 19 | 73 | 0 |
+
+   **An unexpected result:** for all 34 four-square pieces, the guaranteed
+   holes are the same as the spawn-turn holes, because the spawn rule
+   already picks a turn with the fewest holes. So the tutorial's
+   "guaranteed holes" classification gives exactly my existing classes.
+   The two only differ for five-square pieces (8 of 166). My spawn-turn
+   decision in Entry 6 (attempt 2 in section 4) therefore didn't cost
+   anything for 4-square pieces.
+7. **How:**
+   - One new test expected 7 pieces with a 2-deep hole and got 8: the code
+     uses the deepest hole over *all* spawn turns a piece can appear in, and
+     one piece's tied spawn turns differ. The test was corrected.
+   - The AI again couldn't screenshot the designer, so it drove the new
+     controls from code and measured the window: it now needs 892 px of
+     height (786 before), which fits my 956 px screen.
+8. **Strengths:** the tutorial's three kinds of game are now settings a
+   designer chooses, and the robot shows they behave differently.
+   **Weaknesses:**
+   - the next piece is chosen when the previous one appears (so it can be
+     shown), so it is judged on the board without the falling piece;
+   - it looks one move ahead and counts only holes;
+   - the taller designer may not fit small laptop screens;
+   - I haven't yet tried the new designer controls by hand.
+
 ## 4. Earlier and less successful attempts
 
 Nothing was thrown away. Every earlier version that reached a commit is still
@@ -402,7 +476,8 @@ git checkout main                       # back to the final version
 | 3 | **Phase 2, first version: one shared constructor** for all six difficulty classes (28 tests) | log Entries 9–13; never committed on its own, because the first commit came after the change | the brief says the constructor "must be overridden in each subclass" | each class got its own constructor (32 tests) |
 | 4 | **The first playable game: all 34 pieces equally likely** | tag `attempt-2-uniform-pieces` (commit `8dd3455`) | when I played it, it felt boring and much harder than Tetris, because 27 of the 34 pieces are the awkward corner-touching ones. It was also still a fixed distribution, which the brief asks to replace | named mixes, ready-made modes and a mix that gets harder over time (Phase 5) |
 | 5 | **A programming system, not a platform:** a Python library with an API, examples, launchers and documentation | tag `attempt-3-programming-system` (commit `a49b90f`, the full submission as it stood before Phase 8) | I thought this was finished and had written this report about it. The professor's variant / platform / system question made me check: a game designer still had to write Python and had no way to preview, test or package a variant, so it **did not meet the brief's first and foremost requirement** | the platform (Phase 8): the Variant Designer, the robot playtester and the release packager, with the system inside it |
-| 6 | **Final version** | `main` | see the weaknesses in sections 3 and 7 | — |
+| 6 | **A platform that only knew about the falling piece's own shape:** classes and mixes from spawn-turn holes only; every game "fair" | tag `attempt-4-before-tutorial` (commit `eab9245`) | checked against the 6 Nov tutorial (Phase 9): it couldn't make an assistive or unfair game, and couldn't choose pieces by guaranteed holes, hole depth or bounding box | property groups and board-aware mixes (Phase 9) |
+| 7 | **Final version** | `main` | see the weaknesses in sections 3 and 7 | — |
 
 Smaller failures inside each phase (tests that failed, a hung launch) are in
 the next section.
@@ -433,6 +508,8 @@ output. None needed me to change code.
 | 8 | Launching the designer with `--help` opened a window and hung | the command did not finish | stopped it; proper `--help` handling added |
 | 8 | No screenshot of the designer possible | macOS blocked screen capture | checked window size instead, then I tried the designer by hand (Entry 32) |
 | — | Starter `engine.py` had one added type annotation | comparison with the original download (26 Nov) | line restored |
+| 9 | A new test expected the wrong number of pieces with a 2-deep hole | test failure | test corrected (the code counts every spawn turn) |
+| 9 | No screenshot of the designer possible, again | macOS blocked screen capture | controls driven from code and window height measured; still to be tried by hand |
 
 ## 6. Effort with and without AI
 
@@ -440,8 +517,8 @@ output. None needed me to change code.
 
 | | size |
 |---|---|
-| system and platform (`src/extetris`) | about 2,220 lines of Python |
-| tests | about 940 lines, 127 tests |
+| system and platform (`src/extetris`) | about 2,890 lines of Python |
+| tests | about 1,340 lines, 149 tests |
 | tools (analysis and API generator) | about 480 lines |
 | documentation | about 1,930 lines, including UML diagrams |
 | for comparison: the starter code | about 500 lines |
@@ -468,8 +545,8 @@ which I would likely have cut short.
   to write by hand;
 - a few tests and shorter documentation.
 
-The generator approach, the platform (designer, robot, release) and the 127
-tests are the parts I would most likely not have attempted.
+The generator approach, the platform (designer, robot, release), the
+board-aware mixes and the 149 tests are the parts I would most likely not have attempted.
 
 **What the speed cost me:** I wrote no code. My understanding of the code
 comes from the AI's explanations, the tests and the documentation, not from
@@ -482,8 +559,8 @@ verified each phase myself.
 
 - **Checkpoints.** Each design decision was made by me, with its trade-offs
   stated first.
-- **Verification.** Every claim is backed by a test or a reproduction; 127
-  tests run in about 4 seconds.
+- **Verification.** Every claim is backed by a test or a reproduction; 149
+  tests run in about 12 seconds.
 - **Honesty about problems.** Failures and untested parts were reported, not
   hidden.
 - **Plain explanations on request.** These turned an analysis I didn't
@@ -502,13 +579,16 @@ verified each phase myself.
 - **Thinking it was finished too early.** I believed the programming system
   was the whole assignment until the professor's question made me re-read the
   brief (attempt 5 in section 4). I should have checked the "first and
-  foremost requirement" before building, not after.
+  foremost requirement" before building, not after. The same happened with
+  the 6 Nov tutorial: I only watched it on the last day (Phase 9).
 
 **Lessons**
 
 - Ask for plain language early.
 - Setting "stop at each checkpoint" at the start kept me in control of the
   design.
+- Course material (the tutorial) should be checked before designing, not
+  at the end: it described two features I had missed.
 - My one piece of playing feedback ("boring") produced one of the best
   features, so trying the product early matters as much as reading code.
 

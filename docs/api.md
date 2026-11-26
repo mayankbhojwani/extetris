@@ -10,7 +10,7 @@ The system API (pieces, board, game, mixes) is imported with `from extetris impo
 
 - **Platform: variants without code:** `Variant`, `VariantDesigner`, `playtest`, `autoplay`, `summary`, `build_release`
 - **Playing a game:** `Game`, `any_piece`, `GameWindow`
-- **Choosing pieces (mixes):** `mix`, `only`, `progressive`, `mode`, `MODES`, `PieceMix`
+- **Choosing pieces (mixes):** `mix`, `only`, `progressive`, `mode`, `MODES`, `PieceMix`, `assistive`, `unfair`, `fair`, `BoardAwareMix`, `new_holes`, `property_groups`
 - **Pieces:** `ExTetromino`, `NoHole`, `OneHole`, `TwoHole`, `ThreeHole`, `FourHole`, `SixHole`, `PieceInfo`, `Shape`, `PieceGenerator`
 - **The board:** `Board`
 
@@ -52,6 +52,8 @@ The designer window. `variant` and `path` are optional starting points.
 
 - **`run()`**: Show the designer until it is closed.
 - **`form_to_variant()`**: Build a Variant from what's in the form now.
+- **`add_shape_group()`**: Add (or change) a share for the property group chosen in the form.
+- **`clear_shape_groups()`**: Remove the shares added with "Pick by shape".
 - **`refresh()`**: Re-read the form, re-check the variant and redraw the preview.
 - **`play()`**: Open a game window for the current variant.
 - **`robot_test()`**: Let the robot play a few games and report how it went.
@@ -118,7 +120,8 @@ pieces:          which pieces appear and how often. One of:
                      "hard", "chaos" or "progressive" (default:
                      classic pieces first, harder ones as lines
                      are cleared);
-                   * a PieceMix, e.g. mix(NoHole=60, OneHole=40);
+                   * a PieceMix, e.g. mix(NoHole=60, OneHole=40)
+                     or assistive("normal") (it sees the board);
                    * any function rng -> piece.
 rng:             random.Random; pass one with a seed to replay a game.
 start_delay_ms:  time between automatic one-row falls at the start.
@@ -235,10 +238,64 @@ How likely each piece is, possibly depending on lines cleared.
 weight: function (PieceInfo, lines_cleared) -> number >= 0.
 ```
 
-- **`probabilities(lines=0)`**: {piece name: chance} for a game with `lines` lines cleared.
+- **`probabilities(lines=0, board=None)`**: {piece name: chance} for a game with `lines` lines cleared.
 - **`probabilities_by_class(lines=0)`**: {class name: chance} - handy for checking a mix.
 - **`expected_holes(lines=0)`**: Average spawn holes per piece: a rough difficulty score.
-- **`draw(rng, lines=0)`**: A new piece, chosen with these chances.
+- **`draw(rng, lines=0, board=None)`**: A new piece, chosen with these chances.
+
+### `assistive(base='classic', strength=1.0)`
+
+```text
+Prefer pieces that have a place leaving no new holes.
+```
+
+### `unfair(base='classic', strength=1.0)`
+
+```text
+Prefer pieces that can't be placed without leaving holes.
+```
+
+### `fair(base='classic')`
+
+```text
+Chances never depend on the board (any plain mix already behaves so).
+```
+
+### class `BoardAwareMix` (PieceMix)
+
+```text
+A mix that changes its chances to suit the board, in one of STYLES.
+
+base:      the mix it starts from (a mode name or any PieceMix).
+style:     "assistive" favours the pieces that leave the fewest new holes,
+           "unfair" the ones that leave the most (a piece that fits nowhere
+           counts as the worst), "fair" ignores the board.
+strength:  0 to 1. At 1 only the favoured pieces can come; at 0.5 the
+           others keep half their chance; 0 is the same as "fair".
+
+The next piece is chosen when the one before it appears (so the preview can
+show it), so it is judged on the board as it is at that moment.
+```
+
+
+**Constructor:** `BoardAwareMix(base='classic', style='assistive', strength=1.0, name=None)`
+
+- **`probabilities(lines=0, board=None)`**: -
+
+### `new_holes(board, info)`
+
+```text
+The fewest new holes this piece can leave on `board`, trying every turn
+and column and dropping it straight down (rows it fills are cleared first,
+so filling a line counts in its favour). None if it fits nowhere.
+```
+
+### `property_groups()`
+
+```text
+Every property group that holds at least one piece, e.g. 'box:3x3'
+(for menus such as the designer's).
+```
 
 ## Pieces
 
@@ -388,7 +445,7 @@ Everything known about one piece, independent of how it is turned.
 ```
 
 
-**Constructor:** `PieceInfo(name: str, piece_class: type, standard_turn: object, spawn_turns: tuple, spawn_holes: int, box_size: str, touching: str, chiral: bool) -> None`
+**Constructor:** `PieceInfo(name: str, piece_class: type, standard_turn: object, spawn_turns: tuple, spawn_holes: int, box_size: str, touching: str, chiral: bool, guaranteed_holes: int, deepest_hole: int, box_fill: float) -> None`
 
 
 ### class `Shape`

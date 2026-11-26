@@ -48,7 +48,8 @@ class Game:
                              "hard", "chaos" or "progressive" (default:
                              classic pieces first, harder ones as lines
                              are cleared);
-                           * a PieceMix, e.g. mix(NoHole=60, OneHole=40);
+                           * a PieceMix, e.g. mix(NoHole=60, OneHole=40)
+                             or assistive("normal") (it sees the board);
                            * any function rng -> piece.
         rng:             random.Random; pass one with a seed to replay a game.
         start_delay_ms:  time between automatic one-row falls at the start.
@@ -98,7 +99,7 @@ class Game:
 
     def _draw(self):
         if isinstance(self.pieces, PieceMix):
-            piece = self.pieces.draw(self.rng, self.lines)
+            piece = self.pieces.draw(self.rng, self.lines, self.board)
         else:
             piece = self.pieces(self.rng)
         if not isinstance(piece, Shape):

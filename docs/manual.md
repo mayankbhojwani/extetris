@@ -130,6 +130,27 @@ This is the main way to make your own variant. **No programming is needed.**
       up to 100.
     - **Gets harder as lines are cleared:** up to 4 stages, each a mode or
       "my mix" (the sliders), and how many lines each stage lasts.
+    - **Pick by shape** (under the sliders): choose a property group from
+      the list, give it a share and press **Add**. **Clear** removes them.
+      The groups are:
+
+      | group | pieces in it |
+      |---|---|
+      | `box:3x3`, `box:4x2`, … | bounding box of that size |
+      | `guaranteed:2` | sure to leave 2 holes however they are turned |
+      | `deepest:2` | deepest one-column hole is 2 squares (deep holes are the hardest to fill later) |
+      | `fill>=50` | fill at least 50 % of their bounding box |
+  - **Reacts to the board:** whether the game looks at the board before
+    choosing the next piece.
+    - **Fair** (normal): it doesn't look.
+    - **Assistive:** it favours pieces that have a place where they leave no
+      new hole.
+    - **Unfair:** it favours pieces that can't be placed without leaving a
+      hole, so lines pile up.
+    - **Strength** (0–100 %): at 100 % only the favoured pieces come; lower
+      values leave the others some chance.
+
+    The preview shows the chances *before* this adjustment.
 - **Right: the live preview.** It changes as you edit:
   - a bar chart of the chance of each difficulty class;
   - the average holes per piece, with a word for it ("like classic
@@ -167,7 +188,7 @@ numpy and tkinter (`python3 play.py --check` tells them what's missing).
 
 ### Sample variants
 
-The `variants` folder has four to open and change:
+The `variants` folder has six to open and change:
 
 | file | what it is |
 |---|---|
@@ -175,6 +196,8 @@ The `variants` folder has four to open and change:
 | `gentle-start.json` | classic, then easy, then normal; speeds up every 10 lines |
 | `wide-board.json` | a 14 × 22 board with extra long bars |
 | `corner-climb.json` | classic, then a home-made mix, then hard, then chaos |
+| `helping-hand.json` | normal pieces, but the game helps you (assistive, 80 %) |
+| `unfair-ground.json` | classic pieces only, chosen to fit your board badly (unfair, 70 %) |
 
 Also available from a terminal:
 
@@ -265,6 +288,10 @@ That means 70 % of pieces are classic, 20 % are two-hole pieces, and an extra
 | `all=...` | all 34 pieces, sharing equally |
 | `NoHole=...`, `TwoHole=...`, … | every piece in that class, sharing equally |
 | `I=...`, `T=...`, `S=...` | one particular piece |
+| `{"box:3x3": ...}` | every piece with a 3 × 3 bounding box (any size: `"4x2"`, `"3x2"`, …) |
+| `{"guaranteed:2": ...}` | pieces sure to leave 2 holes however they are turned |
+| `{"deepest:2": ...}` | pieces whose deepest one-column hole is 2 squares |
+| `{"fill>=50": ...}` | pieces that fill at least 50 % of their bounding box |
 
 Names with a dash or Γ can't be written this way. Put them in `{ }` with quotes
 instead:
@@ -292,6 +319,27 @@ Game(pieces=progressive(["classic", "easy", "hard"], every_lines=5))
 This uses the first list item at the start and moves to the next one every
 `every_lines` lines cleared, staying on the last. The list items can be mode
 names or your own `mix(...)`.
+
+### d) A game that looks at the board: `assistive(...)` and `unfair(...)`
+
+```python
+from extetris import Game, assistive, unfair
+
+Game(pieces=assistive("normal", strength=0.8))   # helps the player
+Game(pieces=unfair("classic"))                   # works against the player
+```
+
+Before each piece is chosen, every candidate is tried in every turn and
+column on the current board. **Assistive** favours the pieces that can leave
+no new hole; **unfair** favours the ones that leave the most. `strength`
+(0 to 1) says how strongly. The first argument is any mode name or mix,
+including `progressive(...)`.
+
+In a variant file, add `"fairness"` and `"strength"` to `"pieces"`:
+
+```json
+"pieces": {"kind": "mode", "mode": "normal", "fairness": "assistive", "strength": 0.8}
+```
 
 ### Checking a mix before you play
 

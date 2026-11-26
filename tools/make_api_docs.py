@@ -28,7 +28,9 @@ SECTIONS = [
         (game, "Game"), (game, "any_piece"), (window, "GameWindow")]),
     ("Choosing pieces (mixes)", [
         (mixes, "mix"), (mixes, "only"), (mixes, "progressive"), (mixes, "mode"),
-        (mixes, "MODES"), (mixes, "PieceMix")]),
+        (mixes, "MODES"), (mixes, "PieceMix"), (mixes, "assistive"),
+        (mixes, "unfair"), (mixes, "fair"), (mixes, "BoardAwareMix"),
+        (mixes, "new_holes"), (mixes, "property_groups")]),
     ("Pieces", [
         (pieces, "ExTetromino"), (pieces, "NoHole"), (pieces, "OneHole"),
         (pieces, "TwoHole"), (pieces, "ThreeHole"), (pieces, "FourHole"),
@@ -128,7 +130,7 @@ def main():
                     out.extend(f"| `{k}` | `{v!r}` |" for k, v in obj.items())
                     out.append("")
     unexported = set(extetris.__all__) - {n for _, it in SECTIONS for _, n in it}
-    if unexported - {"DIFFICULTY_CLASSES"}:
+    if unexported - {"DIFFICULTY_CLASSES", "STYLES"}:
         raise SystemExit(f"not documented: {sorted(unexported)}")
     path = ROOT / "docs" / "api.md"
     path.write_text("\n".join(out).rstrip() + "\n", encoding="utf-8")

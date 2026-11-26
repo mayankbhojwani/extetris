@@ -98,7 +98,7 @@ flowchart TB
 ```
 
 Everything except `window.py` and `designer.py` works without tkinter. That's
-why the rules can be checked by automatic tests (127 in total) and replayed
+why the rules can be checked by automatic tests (149 in total) and replayed
 exactly from a random seed.
 
 ## 3. Class diagram
@@ -341,6 +341,33 @@ Compared with the starter's repeated index list:
   times, so its "uniform" mix wasn't uniform;
 - they can depend on how far the game has got.
 
+Phase 9 (after the 6 Nov tutorial) added two things:
+
+- **Property groups.** Mix keys can also select pieces by a measured
+  property rather than a name: `box:3x3`, `guaranteed:2` (fewest holes in any
+  turn), `deepest:2` (deepest one-column hole) and `fill>=50` (share of the
+  bounding box filled). These are filters over `PieceInfo`, so no new
+  classes were needed.
+- **Board-aware mixes.** A plain mix sees only the lines cleared, so it can
+  only make a *fair* game. `BoardAwareMix` is a `PieceMix` subclass whose
+  `probabilities(lines, board)` also gets the board. It tries each candidate
+  in every turn and column (`new_holes`) and moves the chances towards the
+  pieces that fit best (*assistive*) or worst (*unfair*). `Game` passes its
+  board when it draws; plain mixes ignore it, and plain `rng -> piece`
+  functions still work.
+
+| robot, 3 games of up to 200 pieces | fair | assistive | unfair |
+|---|---|---|---|
+| classic pieces: lines cleared | 73 | 78 | 48 |
+| normal pieces: lines cleared | 19 | 73 | 0 |
+
+One check gave an unexpected answer: for every 4-square piece the
+**guaranteed holes equal the spawn-turn holes**, because the spawn rule
+already picks a turn with the fewest holes. So the "guaranteed holes"
+grouping matches the difficulty classes exactly. It only differs for other
+sizes: 8 of the 166 five-square pieces leave fewer holes in their best turn
+than in their spawn turn.
+
 ### 5.4 Variants are data, not code (platform)
 
 A variant is a small JSON file: name, board, speed, pieces (a mode, a mix of
@@ -393,7 +420,7 @@ pieces it cleared about 73 lines on classic, 19 on normal and 2 on chaos.
 
 ## 7. Testing
 
-`python3 -B -m unittest discover -s tests -v` runs 127 tests in about 3 seconds.
+`python3 -B -m unittest discover -s tests -v` runs 149 tests in about 12 seconds.
 They check:
 
 | test file | what it checks |
@@ -403,6 +430,7 @@ They check:
 | `test_game.py` | moves, wall kicks, locking, speed-ups (B8), pause, game over (B7), 3000-move random play, seeded replay, one window timer (B6) |
 | `test_mixes.py` | weights, names, groups, modes ordered by difficulty, progressive stages, 5000-draw frequency check, Game integration |
 | `test_examples.py` | every example variant and every code snippet in the manual still works |
+| `test_tutorial.py` | Phase 9: guaranteed holes, deepest hole, box fill, property groups, board-aware mixes (assistive avoids pieces that don't fit, unfair picks them, strength, the game passes its board, the robot finds unfair harder), fairness in variant files |
 | `test_platform.py` | variant files (round trip, defaults, 12 kinds of problem), robot player (rules, ranks classic above chaos, repeatable), release zip (contents, permissions, line endings, unzipped `play.py --check` / `--info` actually run), designer window (form → variant, sliders, stages, open/save/release, Play) |
 
 ## 8. Known limitations and possible extensions
@@ -419,5 +447,10 @@ They check:
 - **Mode weights** are first choices. `hard` (1.76 average spawn holes) is
   close to `chaos` (1.85).
 - **Saved boards** are text pictures only; they can't be loaded back.
+- **Board-aware choice happens one piece early.** The next piece is chosen
+  when the one before it appears (so it can be shown as "next"), so it is
+  judged on the board without the falling piece.
+- **Assistive/unfair look one move ahead only** and count holes only, not
+  height or lines cleared.
 - **Sizes other than 4 squares.** The generator supports them, but the
   difficulty classes are defined for 4-square pieces.

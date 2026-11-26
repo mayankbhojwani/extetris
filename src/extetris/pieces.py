@@ -49,6 +49,9 @@ class PieceInfo:
     box_size: str
     touching: str
     chiral: bool
+    guaranteed_holes: int   # fewest holes in any turn (= spawn_holes for 4 squares)
+    deepest_hole: int       # deepest one-column hole of a spawn turn
+    box_fill: float         # share of the bounding box that is filled
 
     def __repr__(self):
         return (f"PieceInfo({self.name!r}, {self.piece_class.__name__}, "
@@ -148,7 +151,10 @@ class ExTetromino(Shape):
                     counters[pc] += 1
                     name = f"{pc.__name__}-{counters[pc]:02d}"
                 out.append(PieceInfo(name, pc, m, turns, sh, g.box_size(m),
-                                     g.touching(m), g.is_chiral(m)))
+                                     g.touching(m), g.is_chiral(m),
+                                     g.guaranteed_holes(m),
+                                     max(g.deepest_hole(t) for t in turns),
+                                     g.box_fill(m)))
             # classics first inside each class, then generator order
             order = {c: n for n, c in enumerate(DIFFICULTY_CLASSES)}
             out.sort(key=lambda i: (order[i.piece_class], "-" in i.name))

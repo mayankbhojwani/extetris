@@ -73,7 +73,7 @@ engine.py, board.py, shape.py, allextetrominoes.py
 ## For developers
 
 ```bash
-make test        # run the automatic tests (127)
+make test        # run the automatic tests (149)
 make docs        # regenerate docs/api.md and the Phase 1 census
 make catalogue   # list every piece by class
 ```

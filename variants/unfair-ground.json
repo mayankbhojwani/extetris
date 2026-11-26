@@ -1,0 +1,25 @@
+{
+  "format": "extetris-variant/1",
+  "name": "Unfair Ground",
+  "author": "",
+  "description": "Only classic pieces, but the game prefers the ones that fit your board worst.",
+  "board": {
+    "width": 10,
+    "height": 20
+  },
+  "speed": {
+    "start_delay_ms": 1000,
+    "speedup_every": 10,
+    "speedup_factor": 0.85,
+    "min_delay_ms": 50
+  },
+  "pieces": {
+    "kind": "mode",
+    "mode": "classic",
+    "fairness": "unfair",
+    "strength": 0.7
+  },
+  "window": {
+    "cell_size": 28
+  }
+}

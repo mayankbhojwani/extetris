@@ -14,7 +14,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from . import geometry as g
-from .mixes import MODES
+from .mixes import MODES, STYLES, property_groups
 from .pieces import DIFFICULTY_CLASSES, ExTetromino
 from .playtest import playtest, summary
 from .release import build_release
@@ -34,6 +34,10 @@ HELP_TEXT = """1. Give your variant a name.
      they don't need to add up to 100.
    - Gets harder: pick up to 4 stages ("my mix" uses the
      sliders) and how many lines each stage lasts.
+   - Pick by shape: add a share for pieces chosen by a
+     property, e.g. "box:3x3" or "deepest:2".
+   - Reacts to the board: "assistive" favours pieces that
+     fit without leaving holes, "unfair" the ones that don't.
 4. Watch the preview on the right: chances, difficulty,
    and every piece that can appear.
 5. Play it, or let the robot playtest it.
@@ -83,11 +87,15 @@ class VariantDesigner:
         r = self.root
         self.v = {k: tk.StringVar(r) for k in (
             "name", "author", "width", "height", "start_delay_ms", "speedup_every",
-            "faster_pct", "min_delay_ms", "cell_size", "kind", "mode", "every_lines")}
+            "faster_pct", "min_delay_ms", "cell_size", "kind", "mode", "every_lines",
+            "fairness", "extra_group", "extra_share")}
+        self.strength = tk.DoubleVar(r, value=100)
         self.shares = {k: tk.DoubleVar(r, value=0) for k in GROUPS}
         self.stages = [tk.StringVar(r, value="(none)") for _ in range(MAX_STAGES)]
         self.preview_lines = tk.DoubleVar(r, value=0)
-        for var in list(self.v.values()) + list(self.shares.values()) + self.stages:
+        quiet = (self.v["extra_group"], self.v["extra_share"])   # used by "Add" only
+        for var in ([x for x in self.v.values() if x not in quiet] + [self.strength]
+                    + list(self.shares.values()) + self.stages):
             var.trace_add("write", self._changed)
         self.preview_lines.trace_add("write", lambda *a: self._draw_preview())
 
@@ -131,6 +139,9 @@ class VariantDesigner:
                     stages.append(choice)
             pieces = {"kind": "progressive", "stages": stages,
                       "every_lines": num(v["every_lines"].get())}
+        if v["fairness"].get() != "fair":
+            pieces["fairness"] = v["fairness"].get()
+            pieces["strength"] = round(self.strength.get()) / 100
         return Variant({
             "name": v["name"].get(),
             "author": v["author"].get(),
@@ -178,6 +189,11 @@ class VariantDesigner:
         v["kind"].set(kind)
         v["mode"].set(p.get("mode", "progressive"))
         v["every_lines"].set(p.get("every_lines", 10))
+        v["fairness"].set(p.get("fairness", "fair"))
+        strength = p.get("strength", 1)
+        self.strength.set(strength * 100 if isinstance(strength, (int, float)) else 100)
+        v["extra_group"].set(property_groups()[0])
+        v["extra_share"].set(20)
         self._set_shares(p.get("weights") if kind == "mix" else {"classic": 70, "OneHole": 30})
         for var in self.stages:
             var.set("(none)")
@@ -289,8 +305,19 @@ class VariantDesigner:
             value_label = ttk.Label(self.mix_frame, width=4)
             value_label.grid(row=n, column=2)
             self.share_labels.append(value_label)
+        by_shape = ttk.Frame(self.mix_frame)
+        by_shape.grid(row=len(GROUPS), column=0, columnspan=3, sticky="w", pady=(4, 0))
+        ttk.Label(by_shape, text="Pick by shape").pack(side="left")
+        ttk.Combobox(by_shape, state="readonly", values=property_groups(), width=12,
+                     textvariable=self.v["extra_group"]).pack(side="left", padx=4)
+        ttk.Spinbox(by_shape, from_=0, to=100, width=4,
+                    textvariable=self.v["extra_share"]).pack(side="left")
+        ttk.Button(by_shape, text="Add", width=4,
+                   command=self.add_shape_group).pack(side="left", padx=(4, 0))
+        ttk.Button(by_shape, text="Clear", width=5,
+                   command=self.clear_shape_groups).pack(side="left")
         self.extra_label = ttk.Label(self.mix_frame, foreground="#555", wraplength=260)
-        self.extra_label.grid(row=len(GROUPS), column=0, columnspan=3, sticky="w")
+        self.extra_label.grid(row=len(GROUPS) + 1, column=0, columnspan=3, sticky="w")
 
         self.prog_frame = ttk.Frame(pieces, padding=(18, 4, 0, 0))
         for n, var in enumerate(self.stages):
@@ -304,6 +331,31 @@ class VariantDesigner:
         ttk.Label(self.prog_frame, text='"my mix" uses the sliders of "My own mix".',
                   foreground="#555").grid(row=MAX_STAGES + 1, column=0, columnspan=2,
                                           sticky="w")
+
+        react = ttk.LabelFrame(parent, text="Reacts to the board", padding=8)
+        react.pack(fill="x", pady=(8, 0))
+        for n, style in enumerate(STYLES):
+            ttk.Radiobutton(react, text=style.capitalize(), value=style,
+                            variable=self.v["fairness"]).grid(row=0, column=n, sticky="w")
+        ttk.Scale(react, from_=0, to=100, variable=self.strength,
+                  length=80).grid(row=0, column=3, padx=(8, 0))
+        self.strength_label = ttk.Label(react, width=5)
+        self.strength_label.grid(row=0, column=4)
+
+    def add_shape_group(self):
+        """Add (or change) a share for the property group chosen in the form."""
+        share = self._num(self.v["extra_share"].get(), float)
+        if not isinstance(share, float) or share < 0:
+            messagebox.showerror("Can't add", "The share must be 0 or more.",
+                                 parent=self.root)
+            return
+        self.extra_weights[self.v["extra_group"].get()] = round(share)
+        self._changed()
+
+    def clear_shape_groups(self):
+        """Remove the shares added with "Pick by shape"."""
+        self.extra_weights = {}
+        self._changed()
 
     def _build_preview(self, parent):
         head = ttk.Frame(parent)
@@ -338,10 +390,11 @@ class VariantDesigner:
                 frame.pack(fill="x")
             else:
                 frame.pack_forget()
+        self.strength_label.config(text=f"{round(self.strength.get())} %")
         for label, key in zip(self.share_labels, GROUPS):
             label.config(text=str(round(self.shares[key].get())))
         self.extra_label.config(text=(
-            "Also kept from the file: " + ", ".join(f"{k} {w}" for k, w in
+            "Also in the mix: " + ", ".join(f"{k} {w}" for k, w in
                                                     self.extra_weights.items()))
             if self.extra_weights else "")
 
@@ -392,7 +445,8 @@ class VariantDesigner:
             self.chart.create_text(bar_left + share * bar_max + 6, y + 10, anchor="w",
                                    text=f"{share:.0%}")
         self.difficulty.config(text=f"Average holes per piece: {holes:.2f}  →  "
-                                    f"{difficulty_word(holes)}   (classic 0.29 … all 34 pieces 1.85)")
+                                    f"{difficulty_word(holes)}   (classic 0.29 … all 34 pieces 1.85)"
+                                    + self._fairness_note())
 
         tile_w, tile_h, cell = 78, 62, 9
         cols = max(1, max(self.gallery.winfo_width(), 520) // tile_w)
@@ -411,6 +465,14 @@ class VariantDesigner:
                                      font=("Helvetica", 9))
         rows = (len(shown) + cols - 1) // cols
         self.gallery.config(height=max(120, rows * tile_h + 8))
+
+    def _fairness_note(self):
+        style = self.v["fairness"].get()
+        if style == "fair":
+            return ""
+        return (f"\n{style.capitalize()}: during play these chances shift towards pieces "
+                + ("that fit" if style == "assistive" else "that don't fit")
+                + " the board.")
 
     # --- actions -------------------------------------------------------------------------
     def _require_valid(self, action):
