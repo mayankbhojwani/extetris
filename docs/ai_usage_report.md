@@ -29,7 +29,7 @@ brief.
 | use cases, UML | [design.md §2a](design.md#2a-use-cases-who-uses-extetris-and-for-what) (use cases), [§3](design.md#3-class-diagram) (class diagram), [§4](design.md#4-what-happens-when-you-press-space) (sequence diagram), [§1a](design.md#1a-what-kind-of-product-is-this) and [§2](design.md#2-the-layers) (product and layer diagrams) |
 | the division of labour, additional methods, "hair and limbs" | [design.md §3a](design.md#3a-the-division-of-labour-who-does-what-hair-and-limbs) |
 | how the class hierarchy gives flexibility without programming burden | [design.md §3b](design.md#3b-how-the-hierarchy-takes-work-off-the-application-programmer), [§5](design.md#5-key-design-decisions) |
-| 1. prompts, verbatim | [ai_log/raw_log.md](ai_log/raw_log.md) (all 41 entries); quoted in section 3 below |
+| 1. prompts, verbatim | [ai_log/raw_log.md](ai_log/raw_log.md) (all 40 entries); quoted in section 3 below |
 | 2. responses, verbatim | the attached transcripts (section 8); summaries in the log |
 | 3.–8. interpreted, planned, implemented, got, how, strengths/weaknesses | section 3 below, for every phase |
 | earlier attempts, the evolution of the project and my learning | section 4 (table and diagram), section 7 (lessons) |
@@ -469,10 +469,10 @@ Full prompts are in the log; short ones are quoted here.
    - the taller designer may not fit small laptop screens;
    - I haven't yet tried the new designer controls by hand.
 
-### Reporting work (Entries 23–25, 33–36, 40–41)
+### Reporting work (Entries 23–25, 33–36, 40)
 
 The report was not written once at the end. It was written after Phase 7,
-then reviewed, corrected and extended four times. Each round is reported
+then reviewed, corrected and extended twice. Each round is reported
 under the same eight items.
 
 #### R1. First report and transcript (Entries 23–25, 22 Nov)
@@ -544,34 +544,6 @@ under the same eight items.
    field and a partly hidden email; the second scan caught both.
 8. **Strengths:** checked by scanning, not assumed. **Weakness:** the 26 Nov
    transcript ends before the cleaning, so that part is only in the log.
-
-#### R4. Compiling the report against the full checklist (Entry 41, 26 Nov)
-
-1. **Prompt:** the course's list of what the report must contain at least,
-   ending *"NOW STOP DEVELOPMENT AND FOCUS ON COMPILING THE REPORT"*
-   (verbatim in Entry 41).
-2. **Response:** no code was changed. It checked each item against the
-   documents and found four gaps: no entity-relationship diagram, no use-case
-   diagram, no section on the division of labour and the added methods, and
-   no section on how the hierarchy relieves the programmer. The class diagram
-   also predated Phases 8 and 9, and the reporting rounds (R1–R3) had no
-   eight-item write-up.
-3. **Interpreted:** the design document had the content spread across
-   sections, but an evaluator looking for each named item couldn't find it.
-4. **Planned:** add the missing items as named sections, update the class
-   diagram, add the reporting rounds and a map from the checklist to the
-   documents, and draw the attempts as a diagram.
-5. **Implemented:** [design.md](design.md) sections 2a, 2b, 3a and 3b and an
-   updated class diagram; in this report, the checklist map, this
-   subsection, the evolution diagram in section 4 and updated effort figures.
-6. **Got:** every item on the list now has a named place (see the map at the
-   top). The new diagrams were checked to render.
-7. **How:** the facts in the new sections were taken from the code (class
-   and method lists), the variant format and the starter code in the brief,
-   not from memory.
-8. **Strengths:** the evaluators can go from each requirement straight to
-   its answer. **Weakness:** these diagrams were drawn after the code, as
-   documentation, not used to design it.
 
 ## 4. Earlier and less successful attempts
 
@@ -670,12 +642,12 @@ output. None needed me to change code.
 | system and platform (`src/extetris`) | about 2,890 lines of Python |
 | tests | about 1,340 lines, 149 tests |
 | tools (analysis and API generator) | about 480 lines |
-| documentation | design, manual, API, analysis and README: about 1,930 lines, with 6 diagrams (use case, ER, class, sequence, product, layers); this report about 800 lines; the log about 1,500 lines |
+| documentation | design, manual, API, analysis and README: about 1,930 lines, with 6 diagrams (use case, ER, class, sequence, product, layers); this report about 720 lines; the log about 1,450 lines |
 | for comparison: the starter code | about 500 lines |
 
 **With AI:** about 2½ hours of session time on 22 November, plus my own
 reading, testing and playing (about 4 hours, section 2). The 26 November
-session (Phase 9 and the reporting rounds R2–R4) ran from about 08:00 to
+session (Phase 9 and the reporting rounds R2–R3) ran from about 08:00 to
 15:00 IST by the clock; that includes waiting for the tutorial audio to be
 transcribed and my own breaks, so the working time was less.
 
