@@ -21,6 +21,23 @@ brief.
 7. [Overall strengths, weaknesses and lessons](#7-overall-strengths-weaknesses-and-lessons)
 8. [About "verbatim responses"](#8-about-verbatim-responses)
 
+### Where to find each item the brief asks for
+
+| the brief asks for (section 2.1, 2.2, 3.1) | where it is |
+|---|---|
+| entity-relationships | [design.md §2b](design.md#2b-entityrelationship-diagram) (ER diagram) |
+| use cases, UML | [design.md §2a](design.md#2a-use-cases-who-uses-extetris-and-for-what) (use cases), [§3](design.md#3-class-diagram) (class diagram), [§4](design.md#4-what-happens-when-you-press-space) (sequence diagram), [§1a](design.md#1a-what-kind-of-product-is-this) and [§2](design.md#2-the-layers) (product and layer diagrams) |
+| the division of labour, additional methods, "hair and limbs" | [design.md §3a](design.md#3a-the-division-of-labour-who-does-what-hair-and-limbs) |
+| how the class hierarchy gives flexibility without programming burden | [design.md §3b](design.md#3b-how-the-hierarchy-takes-work-off-the-application-programmer), [§5](design.md#5-key-design-decisions) |
+| 1. prompts, verbatim | [ai_log/raw_log.md](ai_log/raw_log.md) (all 41 entries); quoted in section 3 below |
+| 2. responses, verbatim | the attached transcripts (section 8); summaries in the log |
+| 3.–8. interpreted, planned, implemented, got, how, strengths/weaknesses | section 3 below, for every phase |
+| earlier attempts, the evolution of the project and my learning | section 4 (table and diagram), section 7 (lessons) |
+| effort with AI against without or proscribed | section 6 |
+| API documentation | [api.md](api.md) (generated from the code) |
+| Game Programmer's Manual | [manual.md](manual.md) |
+| build and run scripts | `play.*`, `design.*`, `Makefile` ([README](../README.md)) |
+
 ---
 
 ## 1. Tool and way of working
@@ -452,6 +469,110 @@ Full prompts are in the log; short ones are quoted here.
    - the taller designer may not fit small laptop screens;
    - I haven't yet tried the new designer controls by hand.
 
+### Reporting work (Entries 23–25, 33–36, 40–41)
+
+The report was not written once at the end. It was written after Phase 7,
+then reviewed, corrected and extended four times. Each round is reported
+under the same eight items.
+
+#### R1. First report and transcript (Entries 23–25, 22 Nov)
+
+1. **Prompts:** *"seems fine wrap up the AI usage report yourself on my
+   behalf"*, *"Yes, export it"*, *"4 hours"*.
+2. **Response:** it drafted this report from the log, in my voice, with a
+   note at the top saying so. It left my own hours blank instead of guessing,
+   and pointed out that the log holds summaries, not the verbatim responses
+   the brief asks for, so it exported the transcript.
+3. **Interpreted:** the eight items had to be answered per phase, and the
+   verbatim responses needed the app's transcript.
+4. **Planned:** let the AI draft, but only from what the log shows; I fill in
+   my own time.
+5. **Implemented:** `docs/ai_usage_report.md`; a transcript zip (not
+   committed).
+6. **Got:** a complete first report. The transcript stopped at Entry 24, so
+   later work wasn't in it (fixed in R2 and R3).
+7. **How:** the AI reworded two "Planned" items that claimed plans I had
+   never stated. No other changes.
+8. **Strengths:** every claim is traceable to a log entry. **Weakness:** it
+   had no section on earlier attempts, which I only learned mattered from the
+   professor's note.
+
+#### R2. Review against the professor's note (Entries 33–36, 26 Nov)
+
+1. **Prompts:** the professor's note that the development report matters more
+   than the outcome and that earlier attempts must all be reported; *"Yes, fix
+   them"*; *"Commit and push"*; *"no other attempts outside this repo"*.
+2. **Response:** it checked the report, the repository and the brief against
+   the note and found five problems: no attempts section; the transcript
+   stopped before Phase 8; one line in the starter `engine.py` differed from
+   the download; stale numbers; and the one-day build, which it advised
+   reporting rather than hiding.
+3. **Interpreted:** the evaluators need to see the evolution, so the earlier
+   versions must be findable and runnable, not just described.
+4. **Planned:** add an attempts section, tag the runnable earlier versions,
+   restore the starter file, fix the stale numbers.
+5. **Implemented:** section 4 of this report; git tags
+   `attempt-2-uniform-pieces` and `attempt-3-programming-system`; `engine.py`
+   restored byte for byte.
+6. **Got:** all 127 tests (at that time) passed; the starter files match the
+   original.
+7. **How:** the starter difference was found by comparing files with the
+   original download, not by reading.
+8. **Strengths:** earlier versions can be checked out and run. **Weakness:**
+   the attempts before the first commit exist only as log entries.
+
+#### R3. Submission preparation (Entry 40, 26 Nov)
+
+1. **Prompts:** *"Push now"*, *"everthing done?"*, *"export"*, *"Leave it
+   out"*, *"clean the personal details from the zips"*, *"delete the original
+   zips"*, *"can you put all under one zip file"*, *"should I submit then?"*,
+   *"Yes, log and push"*.
+2. **Response:** it pushed Phase 9; exported both sessions; removed my email,
+   computer user name, organization ID and a folder listing with other
+   students' IDs from the copies; moved the uncleaned originals to the Trash;
+   combined both into one zip; and, when I asked whether to submit, pointed
+   out the log had stopped at Entry 39.
+3. **Interpreted:** the transcripts are part of the report and must be
+   complete, but must not carry personal data.
+4. **Planned:** keep my GitHub username (it is in the public repository
+   anyway); remove everything else personal.
+5. **Implemented:** `extetris-transcripts-cleaned.zip` (attached, not
+   committed); log Entry 40.
+6. **Got:** a scan of the cleaned files found no personal details, and every
+   line still parses.
+7. **How:** the first cleaning pass missed an organization ID in another
+   field and a partly hidden email; the second scan caught both.
+8. **Strengths:** checked by scanning, not assumed. **Weakness:** the 26 Nov
+   transcript ends before the cleaning, so that part is only in the log.
+
+#### R4. Compiling the report against the full checklist (Entry 41, 26 Nov)
+
+1. **Prompt:** the course's list of what the report must contain at least,
+   ending *"NOW STOP DEVELOPMENT AND FOCUS ON COMPILING THE REPORT"*
+   (verbatim in Entry 41).
+2. **Response:** no code was changed. It checked each item against the
+   documents and found four gaps: no entity-relationship diagram, no use-case
+   diagram, no section on the division of labour and the added methods, and
+   no section on how the hierarchy relieves the programmer. The class diagram
+   also predated Phases 8 and 9, and the reporting rounds (R1–R3) had no
+   eight-item write-up.
+3. **Interpreted:** the design document had the content spread across
+   sections, but an evaluator looking for each named item couldn't find it.
+4. **Planned:** add the missing items as named sections, update the class
+   diagram, add the reporting rounds and a map from the checklist to the
+   documents, and draw the attempts as a diagram.
+5. **Implemented:** [design.md](design.md) sections 2a, 2b, 3a and 3b and an
+   updated class diagram; in this report, the checklist map, this
+   subsection, the evolution diagram in section 4 and updated effort figures.
+6. **Got:** every item on the list now has a named place (see the map at the
+   top). The new diagrams were checked to render.
+7. **How:** the facts in the new sections were taken from the code (class
+   and method lists), the variant format and the starter code in the brief,
+   not from memory.
+8. **Strengths:** the evaluators can go from each requirement straight to
+   its answer. **Weakness:** these diagrams were drawn after the code, as
+   documentation, not used to design it.
+
 ## 4. Earlier and less successful attempts
 
 Nothing was thrown away. Every earlier version that reached a commit is still
@@ -479,6 +600,34 @@ git checkout main                       # back to the final version
 | 5 | **A programming system, not a platform:** a Python library with an API, examples, launchers and documentation | tag `attempt-3-programming-system` (commit `a49b90f`, the full submission as it stood before Phase 8) | I thought this was finished and had written this report about it. The professor's variant / platform / system question made me check: a game designer still had to write Python and had no way to preview, test or package a variant, so it **did not meet the brief's first and foremost requirement** | the platform (Phase 8): the Variant Designer, the robot playtester and the release packager, with the system inside it |
 | 6 | **A platform that only knew about the falling piece's own shape:** classes and mixes from spawn-turn holes only; every game "fair" | tag `attempt-4-before-tutorial` (commit `eab9245`) | checked against the 6 Nov tutorial (Phase 9): it couldn't make an assistive or unfair game, and couldn't choose pieces by guaranteed holes, hole depth or bounding box | property groups and board-aware mixes (Phase 9) |
 | 7 | **Final version** | `main` | see the weaknesses in sections 3 and 7 | — |
+
+The same evolution as a diagram. Solid boxes are versions that ran; dashed
+ones are designs that were dropped before any code was written:
+
+```mermaid
+flowchart TB
+    A0["0. Starter code<br/>one engine class, 73 typed grids,<br/>chances by repeating indices"]
+    A1["1. Three hierarchies proposed<br/>A: box, B: holes, C: generator"]
+    A2["2. B+C, class from best turn"]
+    A2b["B+C, class from spawn turn<br/>flattest, fewest holes, random"]
+    A3["3. One shared constructor"]
+    A3b["Each class its own constructor"]
+    A4["4. First playable game<br/>all 34 pieces equally likely<br/>tag attempt-2-uniform-pieces"]
+    A5["5. Programming system<br/>mixes, modes, progressive, docs<br/>tag attempt-3-programming-system"]
+    A6["6. Platform<br/>designer, robot, release<br/>tag attempt-4-before-tutorial"]
+    A7["7. Final: property groups,<br/>fair / assistive / unfair<br/>main"]
+    A0 --> A1
+    A1 -->|"chose B+C"| A2
+    A2 -->|"pieces fall in their spawn turn"| A2b
+    A2b --> A3
+    A3 -->|"brief: override in each subclass"| A3b
+    A3b --> A4
+    A4 -->|"played it: boring and too hard"| A5
+    A5 -->|"professor's platform question"| A6
+    A6 -->|"6 Nov tutorial"| A7
+    classDef dropped stroke-dasharray: 5 5
+    class A1,A2 dropped
+```
 
 Smaller failures inside each phase (tests that failed, a hung launch) are in
 the next section.
@@ -521,11 +670,14 @@ output. None needed me to change code.
 | system and platform (`src/extetris`) | about 2,890 lines of Python |
 | tests | about 1,340 lines, 149 tests |
 | tools (analysis and API generator) | about 480 lines |
-| documentation | about 1,930 lines, including UML diagrams |
+| documentation | design, manual, API, analysis and README: about 1,930 lines, with 6 diagrams (use case, ER, class, sequence, product, layers); this report about 800 lines; the log about 1,500 lines |
 | for comparison: the starter code | about 500 lines |
 
-**With AI:** about 2½ hours of session time, plus my own reading, testing and
-playing (section 2).
+**With AI:** about 2½ hours of session time on 22 November, plus my own
+reading, testing and playing (about 4 hours, section 2). The 26 November
+session (Phase 9 and the reporting rounds R2–R4) ran from about 08:00 to
+15:00 IST by the clock; that includes waiting for the tutorial audio to be
+transcribed and my own breaks, so the working time was less.
 
 **Without AI (rough estimate):** I would have needed to:
 

@@ -1453,3 +1453,67 @@ Yes, log and push
   entry was added, along with a timeline row and a transcript note in the
   report, and pushed.
 - The designer's new controls are still to be tried by hand.
+
+## Entry 41 (2026-11-26, compile the report against the full checklist)
+
+### Prompt (verbatim)
+
+```text
+As outlined in the [assignment document](https://quanta.bits-pilani.ac.in/mod/resource/view.php?id=6900) we expect at the least:
+
+* The entity-relationships, use-case diagrams etc.
+* The nitty-gritty of the new division of labour and additional methods, hair and limbs,
+* The class hierarchy and how it allows many flexibilities yet relieving the application programmer of programming
+burden, how it lets them focus on the game engine dynamics instead of coding
+* AI Usage Report: 1. The prompts given (verbatim)
+2. The AI assistant’s responses (verbatim)
+3. What you interpreted from this
+4. What you planned on that basis
+5. What you implemented by that plan
+6. What you got (did it work?)
+7. How you got it (did it work without modification and research on your own? if not, what modification did you do, and how did you figure it out?)
+8. The strengths and weaknesses, trade-offs, of the outcome.
+• Assessment and comparison of the effort actually put in, with what it would be if AI assistance was either
+unavailable or proscribed.
+• The API or whatever game programming platform and/or system documentation (application programmer’s manual)
+
+If you have made multiple attempts (with different designs, even if only partially different), report in such a way that we can see the evolution of the project as well as your learning. EVEN IF YOUR FINAL OUTCOME IS LESS THAN DESIRED. Multiple attempts should be reported in a neat, easily discernible structure and separation. It should show the evolution of your thinking along with your project.
+
+T H E   B U R D E N   O F   C O N V I N C I N G   U S   O F   Y O U R   E F F O R T S   A N D   S Y S T E M A T I C   T H I N K I N G   I S  O N  Y O U,   N O T   O N  U S.  THEREFORE, NOW STOP DEVELOPMENT AND FOCUS ON COMPILING THE REPORT.
+```
+
+### Response summary
+
+No code was changed (development stopped, as the note says). The assistant
+read the brief again and checked every item on the list against the
+documents.
+
+**Already covered:** prompts verbatim (this log), responses verbatim (the
+attached transcripts), the eight items for Phases 1–9, earlier attempts with
+tags (report section 4), the effort comparison (section 6), the API reference
+and the Game Programmer's Manual.
+
+**Gaps found and filled:**
+
+- `docs/design.md`:
+  - **2a, use cases:** a use-case diagram (game designer, application
+    programmer, player) and a table of what each needs;
+  - **2b, entity-relationships:** an ER diagram of variant, settings, piece
+    choice, stages, piece groups, pieces, difficulty classes, game, board,
+    playtest report and release;
+  - **3, class diagram:** brought up to date with `BoardAwareMix`, `Variant`,
+    `VariantDesigner`, the new `PieceInfo` fields and `Game.drop_at`;
+  - **3a, division of labour ("hair and limbs"):** what each layer of the
+    hierarchy alone is responsible for, what it adds and what it inherits;
+    where every starter method went; the methods with no starter equivalent;
+  - **3b, relieving the programmer:** the same nine changes done in the
+    starter, in the designer and in Python, and the five properties of the
+    hierarchy that make that possible.
+- `docs/ai_usage_report.md`:
+  - a map from each checklist item to where it is answered;
+  - the reporting rounds R1–R4 (Entries 23–25, 33–36, 40, 41) under the
+    eight items;
+  - a diagram of the evolution from the starter to the final version;
+  - updated effort and size figures.
+
+The new diagrams were checked to render.

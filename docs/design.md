@@ -101,6 +101,143 @@ Everything except `window.py` and `designer.py` works without tkinter. That's
 why the rules can be checked by automatic tests (149 in total) and replayed
 exactly from a random seed.
 
+## 2a. Use cases: who uses ExTetris, and for what
+
+Mermaid has no use-case diagram, so this is drawn as a flowchart in the same
+style: people outside, the use cases inside the system boundary.
+
+```mermaid
+flowchart LR
+    GD(["Game designer<br/>(no programming)"])
+    AP(["Application programmer<br/>(writes a little Python)"])
+    PL(["Player"])
+    subgraph EXT["ExTetris platform"]
+        direction TB
+        UC1(["Design a variant in a form"])
+        UC2(["See live preview:<br/>piece chances, difficulty, problems"])
+        UC5(["Open / save a variant file"])
+        UC4(["Release a variant as a zip<br/>with README and launchers"])
+        UC3(["Robot-playtest a variant"])
+        UC6(["Write a variant in a few lines<br/>(Game, mix, progressive)"])
+        UC7(["Extend: own mix rule,<br/>own front end, other piece sizes"])
+        UC8(["Play a variant"])
+        UC9(["Pause, change mode, save board"])
+    end
+    GD --- UC1
+    GD --- UC2
+    GD --- UC5
+    GD --- UC4
+    GD --- UC3
+    AP --- UC3
+    AP --- UC6
+    AP --- UC7
+    PL --- UC8
+    PL --- UC9
+```
+
+Two use cases include others: designing in the form always shows the live
+preview, and releasing always saves the variant file.
+
+| actor | needs | how ExTetris serves it |
+|---|---|---|
+| Game designer | make and ship a variant without code (the brief's "first and foremost requirement") | Variant Designer window, variant files, robot playtest, release zip ([manual §4](manual.md)) |
+| Application programmer | shape a variant from Python without touching the engine | `Game(...)`, `mix`, `only`, `progressive`, `assistive`, `unfair` ([manual §5–7](manual.md), [api.md](api.md)) |
+| Player | play it | `play.*` launchers or the launchers inside a release |
+
+## 2b. Entity–relationship diagram
+
+The things ExTetris keeps track of, and how they relate. A variant is the
+only thing a designer saves; everything else is made from it or computed.
+
+```mermaid
+erDiagram
+    VARIANT ||--|| BOARD_SETTINGS : "has"
+    VARIANT ||--|| SPEED_SETTINGS : "has"
+    VARIANT ||--|| PIECE_CHOICE : "has"
+    PIECE_CHOICE ||--|{ STAGE : "has 1 (mode, mix) or more (progressive)"
+    STAGE }o--o{ PIECE_GROUP : "gives a share to"
+    PIECE_GROUP }o--|{ PIECE : "selects"
+    DIFFICULTY_CLASS ||--|{ PIECE : "contains"
+    PIECE ||--|{ TURN : "can be turned to"
+    PIECE ||--|{ SPAWN_TURN : "appears in"
+    VARIANT ||--o{ GAME : "is played as"
+    GAME ||--|| BOARD : "holds"
+    GAME ||--|| PIECE : "falling piece"
+    GAME ||--|| PIECE : "next piece"
+    VARIANT ||--o{ PLAYTEST_REPORT : "is tested in"
+    VARIANT ||--o{ RELEASE : "is shipped as"
+
+    VARIANT {
+        string name
+        string author
+        string description
+        string format "extetris-variant/1"
+    }
+    BOARD_SETTINGS {
+        int width "4-40"
+        int height "4-40"
+        int cell_size
+    }
+    SPEED_SETTINGS {
+        int start_delay_ms
+        int speedup_every
+        float speedup_factor
+        int min_delay_ms
+    }
+    PIECE_CHOICE {
+        string kind "mode, mix or progressive"
+        int every_lines "progressive only"
+        string fairness "fair, assistive or unfair"
+        float strength "0 to 1"
+    }
+    STAGE {
+        string mode_or_weights
+    }
+    PIECE_GROUP {
+        string key "I, TwoHole, classic, all, box:3x3, guaranteed:2, deepest:1, fill>=50"
+        float share
+    }
+    DIFFICULTY_CLASS {
+        string name "NoHole ... SixHole"
+        int spawn_holes
+    }
+    PIECE {
+        string name "T or TwoHole-03"
+        string box_size
+        string touching "edges or corners"
+        bool chiral
+        int spawn_holes
+        int guaranteed_holes
+        int deepest_hole
+        float box_fill
+    }
+    GAME {
+        int lines
+        int pieces_placed
+        int delay_ms
+        bool paused
+        bool game_over
+    }
+    BOARD {
+        int width
+        int height
+        grid cells
+    }
+    PLAYTEST_REPORT {
+        float average_lines
+        float average_pieces
+    }
+    RELEASE {
+        file zip "variant, engine, README, launchers"
+    }
+```
+
+Reading it: `||--|{` means "exactly one … one or more", `||--o{` means
+"exactly one … zero or more", and `}o--o{` means "many to many". PIECE and
+DIFFICULTY_CLASS are not stored anywhere: the generator computes them each
+run (section 5.1). The entities in the top half are exactly the fields of a
+variant file ([variant.py](../src/extetris/variant.py)).
+
 ## 3. Class diagram
 
 ```mermaid
@@ -159,6 +296,7 @@ classDiagram
         +standard_turn, spawn_turns
         +spawn_holes, box_size
         +touching, chiral
+        +guaranteed_holes, deepest_hole, box_fill
     }
 
     class PieceGenerator {
@@ -170,10 +308,32 @@ classDiagram
     class PieceMix {
         +weight : function of info and lines
         +name
-        +probabilities(lines) dict
+        +probabilities(lines, board) dict
         +probabilities_by_class(lines) dict
         +expected_holes(lines) float
-        +draw(rng, lines) ExTetromino
+        +draw(rng, lines, board) ExTetromino
+    }
+
+    class BoardAwareMix {
+        +base : PieceMix
+        +style : fair, assistive or unfair
+        +strength : 0 to 1
+        +probabilities(lines, board) dict
+    }
+
+    class Variant {
+        +data : dict from a JSON file
+        +load(path)$ Variant
+        +save(path)
+        +problems() list
+        +piece_mix() PieceMix
+        +make_game(rng) Game
+        +describe_markdown() str
+    }
+
+    class VariantDesigner {
+        +form_to_variant() Variant
+        +run()
     }
 
     class Board {
@@ -196,6 +356,7 @@ classDiagram
         +move_left(), move_right()
         +rotate_cw(), rotate_ccw()
         +soft_drop(), hard_drop(), tick()
+        +drop_at(turn, col)
         +new_game(), set_pieces(), toggle_pause()
         +render() str
     }
@@ -218,6 +379,12 @@ classDiagram
     ExTetromino --> PieceInfo : info
     ExTetromino ..> PieceGenerator : builds catalogue with
     PieceMix ..> ExTetromino : draws
+    PieceMix <|-- BoardAwareMix
+    BoardAwareMix ..> Board : reads
+    Variant ..> Game : makes
+    Variant ..> PieceMix : makes
+    VariantDesigner --> Variant : edits
+    VariantDesigner ..> GameWindow : opens for Play
     Game *-- Board : board
     Game o-- Shape : piece, next_piece
     Game o-- PieceMix : pieces
@@ -227,6 +394,92 @@ classDiagram
 Reading the arrows: a hollow triangle means "is a kind of" (inheritance). A
 filled diamond means "owns". A hollow diamond means "uses one it was given". A
 dotted arrow means "depends on".
+
+## 3a. The division of labour: who does what ("hair and limbs")
+
+The brief's "Division of Labour" says the shape class provides the basic
+dynamics of every piece, every ExTetromino inherits them, and the
+constructor gets more complicated and is overridden in each subclass. This
+is how that split was carried out. Each row is one layer of the hierarchy and
+what it alone is responsible for.
+
+| layer | its one job | what it adds ("hair and limbs") | what it inherits or delegates |
+|---|---|---|---|
+| `geometry.py` (pure functions) | the maths on grids | `freeze`, `trim`, `rotate_cw/ccw`, `mirror`, `distinct_rotations`, `holes`, `hole_profile`, `spawn_turns`, `guaranteed_holes`, `deepest_hole`, `box_size`, `box_fill`, `touching`, `is_chiral` | nothing: no classes, no state |
+| `Shape` | **basic dynamics of any piece**, as in the brief | turns return a *new* shape (`rotated_cw`, `rotated_ccw`); read-only `matrix`; measures as properties (`height`, `width`, `cells`, `holes`, `hole_profile`, `box_size`, `touching`, `is_chiral`); `same_piece_as` | the maths, from `geometry` |
+| `ExTetromino(Shape)` | **what makes a grid a game piece**: identity and the catalogue | `info` (a `PieceInfo`), `name`, `spawn_holes`; `catalogue()` (every piece, built once from the generator); `named("T")`; the shared constructor: pick a piece of this class by name, number or at random, then a spawn turn | all of `Shape`'s dynamics; builds pieces with `PieceGenerator` |
+| `NoHole`, `OneHole`, `TwoHole`, `ThreeHole`, `FourHole`, `SixHole` | **one difficulty class each** | `SPAWN_HOLES` (the class's defining number); **its own `__init__`**, documenting the names and numbers it accepts; `SixHole.__init__` adds a rule of its own (only number 1 exists) | the shared constructor via `super().__init__`, and everything above |
+| `PieceInfo` (frozen dataclass) | **facts about one piece**, whatever way it is turned | `name`, `piece_class`, `standard_turn`, `spawn_turns`, `spawn_holes`, `box_size`, `touching`, `chiral`, `guaranteed_holes`, `deepest_hole`, `box_fill` | made by `ExTetromino.catalogue()` |
+| `PieceGenerator` | **produce every piece from a rule** instead of typing grids | `shapes()`, `free_shapes()` for any number of squares, touching on edges or corners | `geometry` |
+| `Board` | **the grid and how pieces meet it** | `fits` (all four edges), `drop_row`, `place` (returns a new board), `full_rows`, `clear_full_rows`, `holes`, `render`, `from_text` | `geometry` |
+| `PieceMix` | **which piece comes next, and how often** | one function *(piece info, lines) → weight*; `probabilities`, `probabilities_by_class`, `expected_holes`, `draw`; built by `mix`, `only`, `mode`, `progressive` | reads `PieceInfo`; never touches the board |
+| `BoardAwareMix(PieceMix)` | **fair, assistive or unfair choice** | `probabilities(lines, board)` tries each piece on the board (`new_holes`) and moves the chances | its base mix's weights |
+| `Game` | **the rules**, with no window | moves that return True/False, `tick`, `hard_drop`, `drop_at`, locking, line clears, speed-ups, pause, game over | `Board` for space, `PieceMix` for pieces |
+| `GameWindow` | **drawing and keys only** | one timer, Canvas drawing, menus | everything from `Game` |
+| `Variant` | **a whole variant as data** | `load`/`save`, `problems()` in plain words, `piece_mix()`, `make_game()`, `describe_markdown()` | builds a `Game` and a `PieceMix` |
+| `VariantDesigner`, `playtest`, `build_release` | **the platform** | the form and preview; the robot player; the release zip | `Variant` and the API only |
+
+**Where the starter's methods went.** The starter had one class,
+`TetrisEngine`, doing all of this, plus `Shape` and `Board` with mutable
+matrices:
+
+| starter | now |
+|---|---|
+| `Shape.rotateCW`, `rotateAntiCW` (changed the matrix in place, and mirrored it when blocked) | `Shape.rotated_cw()` / `rotated_ccw()` return a new shape; `Game.rotate_cw()` tries it on the board and keeps it only if it fits, with wall kicks |
+| `Shape.fliplr`, `flipud`, `transpose` | inside `geometry` (pure functions); not needed by callers |
+| `Board.collision`, `insertShape`, `removeShape` | `Board.fits`, `Board.place` (new board); removing is never needed because placing doesn't change the old board |
+| `TetrisEngine.move_piece`, `move_left/right`, `drop_piece`, `move_down_step` | `Game.move_left/right`, `soft_drop`, `hard_drop`, `tick` |
+| row clearing inside `move_down_step` | `Board.clear_full_rows()` |
+| `speed_up`, `slow_down` | `Game.speed_up`, `Game.slow_down`, plus `speedup_every`, `speedup_factor`, `min_delay_ms` as settings |
+| `new_piece`, `get_any_extetromino(distribution)` | `PieceMix.draw` (or any `rng -> piece` function) |
+| `render`, `update_step`, `create_menu`, key bindings | `GameWindow` |
+| `Extetromino1` … `Extetromino73` (typed grids) | `PieceGenerator` + the six classes; **no grid is typed anywhere** |
+
+**Additional methods with no starter equivalent:** `Board.drop_row` and
+`holes`, `Shape.same_piece_as`, `ExTetromino.catalogue` and `named`,
+`PieceMix.expected_holes` and `probabilities_by_class`, `new_holes`,
+`Game.drop_at` (for the robot), `Variant.problems` and `describe_markdown`,
+`playtest`, `build_release`.
+
+## 3b. How the hierarchy takes work off the application programmer
+
+The brief asks for a hierarchy that "allow[s] many flexibilities yet
+requir[es] the application programmer no programming prowess", so they can
+"focus on the game engine dynamics, not coding". The table compares what a
+person has to do for the same change, in the starter and in ExTetris.
+
+| they want | starter | ExTetris, no code (designer or variant file) | ExTetris, Python |
+|---|---|---|---|
+| classic Tetris | `TetrisEngine(range(1,8))`, knowing that indices 1–7 are the classics | pick mode "classic" | `Game(pieces="classic")` |
+| more long bars | repeat index 1 (and 10, 11, which are also I) in a list | type a share next to "I" | `mix(classic=70, I=10)` |
+| harder pieces after 10 lines | edit `TetrisEngine` | "Progressive", stages and "every 10 lines" | `progressive(["classic", "hard"], every_lines=10)` |
+| only pieces that fit a 3×3 box | find which of 73 matrices qualify, list their indices | "Pick by shape" → box 3×3 | `mix({"box:3x3": 1})` |
+| a game that helps (or bullies) the player | rewrite piece choice to read the board | "Reacts to the board" → assistive / unfair, strength | `assistive("normal", 0.8)` |
+| a 14-wide board, faster start | edit `width` and timers in `__init__` | two fields | `Game(width=14, start_delay_ms=800)` |
+| check how hard it is | play it | live preview + Robot playtest | `mix(...).expected_holes()`, `playtest(...)` |
+| give it to someone | send the source folder | Release button → zip with README | `build_release(variant, folder)` |
+| a new kind of piece choice | edit `get_any_extetromino` | not possible without code | write one function `(info, lines) -> weight` and wrap it in `PieceMix`, or subclass `PieceMix` |
+
+What makes that possible:
+
+1. **Pieces know their own properties.** Because every piece carries a
+   `PieceInfo`, a programmer can choose pieces by *meaning* (class, box,
+   holes, name) instead of by index. The hierarchy answers "which pieces are
+   two-hole?" so they don't have to.
+2. **Choosing pieces is one function.** Every way of choosing (a mode, a mix,
+   stages, board-aware) is a `PieceMix`, which `Game` treats the same way. A
+   programmer combines them instead of editing the engine.
+3. **Objects can't be changed after they are made.** A programmer can pass
+   shapes and boards around without worrying about the starter's shared-matrix
+   bugs.
+4. **Rules are separate from the window.** A programmer can change rules and
+   test them without opening a window.
+5. **The whole variant is data.** For the designer there is nothing to
+   program; the form writes the file, and the same file drives play, the
+   robot, the README and the release.
+
+The three example scripts in `examples/` are 18–29 lines each, mostly
+comments; the variant files in `variants/` have no code at all.
 
 ## 4. What happens when you press Space
 
@@ -248,7 +501,7 @@ sequenceDiagram
     G->>B: clear_full_rows()
     B-->>G: (new Board, rows cleared)
     Note over G: add to lines, speed up if a<br/>multiple of 100 was crossed
-    G->>M: draw(rng, lines)
+    G->>M: draw(rng, lines, board)
     M->>C: TwoHole(name, rng)
     C-->>M: new piece in a spawn turn
     M-->>G: next piece
