@@ -30,7 +30,7 @@ brief.
 | the division of labour, additional methods, "hair and limbs" | [design.md §3a](design.md#3a-the-division-of-labour-who-does-what-hair-and-limbs) |
 | how the class hierarchy gives flexibility without programming burden | [design.md §3b](design.md#3b-how-the-hierarchy-takes-work-off-the-application-programmer), [§5](design.md#5-key-design-decisions) |
 | 1. prompts, verbatim | [ai_log/raw_log.md](ai_log/raw_log.md) (all 40 entries); quoted in section 3 below |
-| 2. responses, verbatim | the attached transcripts (section 8); summaries in the log |
+| 2. responses, verbatim | the transcripts in the submission's `transcripts/` folder (section 8); summaries in the log |
 | 3.–8. interpreted, planned, implemented, got, how, strengths/weaknesses | section 3 below, for every phase |
 | earlier attempts, the evolution of the project and my learning | section 4 (table and diagram), section 7 (lessons) |
 | effort with AI against without or proscribed | section 6 |
@@ -536,8 +536,8 @@ under the same eight items.
    complete, but must not carry personal data.
 4. **Planned:** keep my GitHub username (it is in the public repository
    anyway); remove everything else personal.
-5. **Implemented:** `extetris-transcripts-cleaned.zip` (attached, not
-   committed); log Entry 40.
+5. **Implemented:** the cleaned transcripts (in the submission's
+   `transcripts/` folder, not committed); log Entry 40.
 6. **Got:** a scan of the cleaned files found no personal details, and every
    line still parses.
 7. **How:** the first cleaning pass missed an organization ID in another
@@ -723,7 +723,8 @@ The brief asks for the AI's responses **verbatim**. At the start I asked the
 assistant to log my prompts verbatim but only a *summary* of each response,
 so [ai_log/raw_log.md](ai_log/raw_log.md) holds summaries. The full
 conversation (every response, word for word) is exported from the Claude app
-as transcript files and attached to the submission alongside this report.
+as transcript files and included in the submission, in the `transcripts/`
+folder next to this repository.
 
 The work ran over two app sessions, so there are two transcripts:
 
@@ -734,5 +735,6 @@ The work ran over two app sessions, so there are two transcripts:
 
 The transcripts are not committed to the repository, because they contain
 personal details (file paths and account information) that I removed before
-attaching them. Both cleaned transcripts are attached as one file,
-`extetris-transcripts-cleaned.zip` (Entry 40).
+including them (Entry 40). The submission is a single zip file:
+`extetris/` holds this repository and `transcripts/22nov/` and
+`transcripts/26nov/` hold the two cleaned transcripts.
