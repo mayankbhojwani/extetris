@@ -15,10 +15,11 @@ brief.
 1. [Tool and way of working](#1-tool-and-way-of-working)
 2. [Timeline](#2-timeline)
 3. [Phase by phase](#3-phase-by-phase) (the eight items for each phase)
-4. [Where the AI's work had to be corrected](#4-where-the-ais-work-had-to-be-corrected)
-5. [Effort with and without AI](#5-effort-with-and-without-ai)
-6. [Overall strengths, weaknesses and lessons](#6-overall-strengths-weaknesses-and-lessons)
-7. [About "verbatim responses"](#7-about-verbatim-responses)
+4. [Earlier and less successful attempts](#4-earlier-and-less-successful-attempts)
+5. [Where the AI's work had to be corrected](#5-where-the-ais-work-had-to-be-corrected)
+6. [Effort with and without AI](#6-effort-with-and-without-ai)
+7. [Overall strengths, weaknesses and lessons](#7-overall-strengths-weaknesses-and-lessons)
+8. [About "verbatim responses"](#8-about-verbatim-responses)
 
 ---
 
@@ -36,7 +37,8 @@ write or edit code myself.** All code and documents were written by the AI.
 
 ## 2. Timeline
 
-All on 22 November 2026 (IST), from the log timestamps:
+From the log timestamps (IST). Everything up to Entry 32 was on 22 November
+2026:
 
 | time | phase | log entries |
 |---|---|---|
@@ -48,6 +50,8 @@ All on 22 November 2026 (IST), from the log timestamps:
 | 17:20 – 17:25 | this report; transcript export | 23 – 25 |
 | 17:27 – 17:30 | the professor's variant / platform / system question | 26 – 28 |
 | 17:30 – 17:40 | Phase 8: the platform layer | 29 – 30 |
+| 17:42 – 17:51 | I tried the Variant Designer by hand | 31 – 32 |
+| 26 Nov | review against the professor's note on reporting; this report's [attempts section](#4-earlier-and-less-successful-attempts) added; a starter file restored | 33 |
 
 The working session took about **2½ hours** in total, in two blocks. On top of
 that came my own time reading the explanations, playing the game and reviewing
@@ -373,7 +377,44 @@ Full prompts are in the log; short ones are quoted here.
    - the robot is a simple heuristic player, not a human;
    - releases still need Python installed (they aren't standalone apps).
 
-## 4. Where the AI's work had to be corrected
+## 4. Earlier and less successful attempts
+
+Nothing was thrown away. Every earlier version that reached a commit is still
+in the git history, and the important ones are tagged so they can be checked
+out and run. Ideas that were dropped before any code was written are recorded
+in the log. They are listed here in order, with what was wrong with each and
+what replaced it.
+
+To run an earlier version:
+
+```bash
+git checkout attempt-2-uniform-pieces   # or another tag below
+python3 play.py
+git checkout main                       # back to the final version
+```
+
+| # | attempt | where to find it | why it fell short | what replaced it |
+|---|---|---|---|---|
+| 0 | **The starter code** (`engine.py` and friends): one `TetrisEngine` class, 73 hand-typed matrices, chances set by repeating indices | project root, unchanged | 34 distinct pieces typed as 73 matrices; 10 bugs, including blocked rotations that mirror a piece (see [analysis.md](analysis.md)); the engine can't be built without opening a window, so it can't be tested | everything below |
+| 1 | **Three hierarchies, none chosen:** (A) classes by bounding box, (B) classes by holes, (C) a generator that builds pieces from a rule | log Entries 1–4 | A follows the brief's "4x2" example but says nothing about difficulty; B needs the grids typed in; C alone has no visible hierarchy | a mixture of B and C (Entry 5) |
+| 2 | **First B+C design: class from the fewest holes in *any* turn** | log Entries 5–6 | a piece is played in the turn it falls in, not its best one; I chose the spawn turn instead. This moved L, T and Γ out of the no-hole class and needed a new rule for *which* turn a piece spawns in | spawn turn = flattest, then fewest holes, then random (Entries 6–8) |
+| 3 | **Phase 2, first version: one shared constructor** for all six difficulty classes (28 tests) | log Entries 9–13; never committed on its own, because the first commit came after the change | the brief says the constructor "must be overridden in each subclass" | each class got its own constructor (32 tests) |
+| 4 | **The first playable game: all 34 pieces equally likely** | tag `attempt-2-uniform-pieces` (commit `8dd3455`) | when I played it, it felt boring and much harder than Tetris, because 27 of the 34 pieces are the awkward corner-touching ones. It was also still a fixed distribution, which the brief asks to replace | named mixes, ready-made modes and a mix that gets harder over time (Phase 5) |
+| 5 | **A programming system, not a platform:** a Python library with an API, examples, launchers and documentation | tag `attempt-3-programming-system` (commit `a49b90f`, the full submission as it stood before Phase 8) | I thought this was finished and had written this report about it. The professor's variant / platform / system question made me check: a game designer still had to write Python and had no way to preview, test or package a variant, so it **did not meet the brief's first and foremost requirement** | the platform (Phase 8): the Variant Designer, the robot playtester and the release packager, with the system inside it |
+| 6 | **Final version** | `main` | see the weaknesses in sections 3 and 7 | — |
+
+Smaller failures inside each phase (tests that failed, a hung launch) are in
+the next section.
+
+**A slip found on 26 November.** While checking the submission against the
+professor's note, the AI compared the starter files in the repository with
+the original download. Three were identical, but `engine.py` had one extra
+type annotation (`-> None` on `update_step`, line 154). It was already there
+in the first commit, and the log does not record how it got there. The
+README and this report say the starter is kept unchanged, so the line was
+restored. All four starter files now match the original byte for byte.
+
+## 5. Where the AI's work had to be corrected
 
 All of these were caught by the AI's own tests or checks, or by me looking at
 output. None needed me to change code.
@@ -388,9 +429,11 @@ output. None needed me to change code.
 | 6 | Diagram syntax risked not rendering | checked in a browser | syntax simplified |
 | 7 | Launch test hung | test did not finish | test rewritten |
 | 8 | Designer slider labels and a fractional-value crash risk | AI's own code review | fixed before testing |
-| 8 | No screenshot of the designer possible | macOS blocked screen capture | checked window size instead; needs a look by me |
+| 8 | Launching the designer with `--help` opened a window and hung | the command did not finish | stopped it; proper `--help` handling added |
+| 8 | No screenshot of the designer possible | macOS blocked screen capture | checked window size instead, then I tried the designer by hand (Entry 32) |
+| — | Starter `engine.py` had one added type annotation | comparison with the original download (26 Nov) | line restored |
 
-## 5. Effort with and without AI
+## 6. Effort with and without AI
 
 **What was produced**
 
@@ -432,14 +475,14 @@ comes from the AI's explanations, the tests and the documentation, not from
 writing it. The checkpoints helped: every design choice was mine, and I
 verified each phase myself.
 
-## 6. Overall strengths, weaknesses and lessons
+## 7. Overall strengths, weaknesses and lessons
 
 **Strengths**
 
 - **Checkpoints.** Each design decision was made by me, with its trade-offs
   stated first.
-- **Verification.** Every claim is backed by a test or a reproduction; 103
-  tests run in about 2 seconds.
+- **Verification.** Every claim is backed by a test or a reproduction; 127
+  tests run in about 4 seconds.
 - **Honesty about problems.** Failures and untested parts were reported, not
   hidden.
 - **Plain explanations on request.** These turned an analysis I didn't
@@ -454,7 +497,11 @@ verified each phase myself.
 - **Untested areas.** Windows launcher, mode weights not playtested, manual
   not tried by a real designer.
 - **Log detail.** The log stores summaries of the AI's responses, not their
-  full text (section 7).
+  full text (section 8).
+- **Thinking it was finished too early.** I believed the programming system
+  was the whole assignment until the professor's question made me re-read the
+  brief (attempt 5 in section 4). I should have checked the "first and
+  foremost requirement" before building, not after.
 
 **Lessons**
 
@@ -464,10 +511,21 @@ verified each phase myself.
 - My one piece of playing feedback ("boring") produced one of the best
   features, so trying the product early matters as much as reading code.
 
-## 7. About "verbatim responses"
+## 8. About "verbatim responses"
 
 The brief asks for the AI's responses **verbatim**. At the start I asked the
 assistant to log my prompts verbatim but only a *summary* of each response,
 so [ai_log/raw_log.md](ai_log/raw_log.md) holds summaries. The full
-conversation (every response, word for word) can be exported from the Claude
-app as a transcript file, to attach to the submission alongside this report.
+conversation (every response, word for word) is exported from the Claude app
+as transcript files and attached to the submission alongside this report.
+
+The work ran over two app sessions, so there are two transcripts:
+
+| session | log entries | export |
+|---|---|---|
+| 22 November | 1 – 32 | the export made at Entry 24 stops there, so the session is exported again in full to cover Phase 8 |
+| 26 November | 33 onwards | exported at the end of that session |
+
+The transcripts are not committed to the repository, because they contain
+personal details (file paths and account information) that I removed before
+attaching them.

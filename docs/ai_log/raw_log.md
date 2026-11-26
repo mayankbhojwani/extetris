@@ -1180,3 +1180,69 @@ The assistant recorded the manual check. It updated the Phase 8 section of
 looked good, and the remaining weakness is that only the student has tried
 it. It committed the report, this log and the re-saved sample variant, and
 pushed them.
+
+---
+
+## Entry 33 (2026-11-26, new app session: review against the professor's note)
+
+### Prompt (verbatim)
+
+```text
+Here is the submissions beginning. First of all, again, DO NOT LET IT SLIP that THE CONTINUED DEVELOPMENT REPORT is MORE IMPORTANT than the final outcome. The Final outcome is only an enabler to make us evaluators look into your development report. If your final outcome is incomplete or falls significantly short of the expectations in the [assignment document](https://quanta.bits-pilani.ac.in/mod/resource/view.php?id=6900) and we get a feeling that this was done in haste at the elevant hour, then regardless of whether you copied or it is your original submission, we will deem it as incomplete. Therefore, if you have had earlier failed (or less successful) attempts, DO NOT THROW ANY EARLIER ATTEMPTS AWAY, REPORT THEM ALL.
+
+this is what my prof said for this assignment
+```
+
+### Response summary
+
+No files changed. The assistant read the brief, the repository, the report
+and this log, and checked them against the professor's note. It found:
+
+1. The report had no section on earlier or less successful attempts, although
+   several exist in the history and the log (the uniform 34-piece game, the
+   programming system before Phase 8, the rejected hierarchy options, the
+   shared constructor).
+2. The full transcript is not in the repository, and the export made at
+   Entry 24 stops before Phase 8.
+3. The starter `engine.py` in the repository differed from the original
+   download by one added type annotation (`-> None`, line 154), although the
+   README says the starter is unchanged. The other three starter files were
+   identical.
+4. Stale details in the report: "103 tests" in section 6, and "needs a look
+   by me" for the designer, which had since been checked by hand.
+5. The whole build happened on one day. It advised against hiding this, and
+   suggested real, logged follow-up work instead: testing `play.bat` on
+   Windows, playtesting the mode weights, and having someone else try the
+   manual and designer.
+
+It also noted that the PDF says "Submit by 21 Oct", likely a typo, and that
+the real deadline should be checked on Moodle.
+
+---
+
+## Entry 34 (2026-11-26, fixes)
+
+### Prompt (verbatim)
+
+```text
+Yes, fix them
+```
+
+### Response summary
+
+- Restored line 154 of `engine.py`; all four starter files now match the
+  original download byte for byte.
+- Added section 4, "Earlier and less successful attempts", to
+  `docs/ai_usage_report.md`: seven stages from the starter to the final
+  version, each with where to find it, why it fell short and what replaced
+  it, plus how to check out and run older versions. Later sections were
+  renumbered.
+- Tagged the runnable earlier versions in git:
+  `attempt-2-uniform-pieces` (`8dd3455`) and
+  `attempt-3-programming-system` (`a49b90f`).
+- Fixed the stale details (127 tests; the designer was checked by hand),
+  added the missing `--help` hang and the starter-file slip to the
+  corrections table, extended the timeline to 26 November, added a
+  "thinking it was finished too early" weakness, and described the two
+  transcripts in section 8.
+- Ran the tests: 127 pass.

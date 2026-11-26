@@ -151,7 +151,7 @@ class TetrisEngine:
     if not(accelerated):
       self.window.after(self.move_down_duration, lambda: self.move_down_step())
 
-  def update_step(self) -> None:
+  def update_step(self):
     if self.pauseStatus:
       self.window.after(self.update_duration, lambda: self.update_step())
       return
